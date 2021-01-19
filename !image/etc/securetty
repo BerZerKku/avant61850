@@ -1,0 +1,34 @@
+# /etc/securetty: list of terminals on which root is allowed to login.
+# See securetty(5) and login(1).
+console
+
+# Standard serial ports
+ttyS0
+ttyS1
+ttyAMA0
+
+# USB dongles
+ttyUSB0
+
+# Standard consoles
+tty1
+tty2
+tty3
+tty4
+tty5
+tty6
+
+# devfs consoles
+# Note: On kernels greater than 2.6.12, this is not needed.
+
+# Standard serial ports, with devfs
+tts/0
+tts/1
+
+# Standard consoles, with devfs
+vc/1
+vc/2
+vc/3
+vc/4
+vc/5
+vc/6

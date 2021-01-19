@@ -1,0 +1,109 @@
+Introduction
+============
+
+This directory contains Device Tree overlays. Device Tree makes it possible
+to support many hardware configurations with a single kernel and without the
+need to explicitly load or blacklist kernel modules. Note that this isn't a
+"pure" Device Tree configuration (c.f. MACH_BCM2835) - some on-board devices
+are still configured by the board support code, but the intention is to
+eventually reach that goal.
+
+On Raspberry Pi, Device Tree usage is controlled from /boot/config.txt. By
+default, the Raspberry Pi kernel boots with device tree enabled. You can
+completely disable DT usage (for now) by adding:
+
+    device_tree=
+
+to your config.txt, which should cause your Pi to revert to the old way of
+doing things after a reboot.
+
+In /boot you will find a .dtb for each base platform. This describes the
+hardware that is part of the Raspberry Pi board. The loader (start.elf and its
+siblings) selects the .dtb file appropriate for the platform by name, and reads
+it into memory. At this point, all of the optional interfaces (i2c, i2s, spi)
+are disabled, but they can be enabled using Device Tree parameters:
+
+    dtparam=i2c=on,i2s=on,spi=on
+
+However, this shouldn't be necessary in many use cases because loading an
+overlay that requires one of those interfaces will cause it to be enabled
+automatically, and it is advisable to only enable interfaces if they are
+needed.
+
+Configuring additional, optional hardware is done using Device Tree overlays
+(see below).
+
+raspi-config
+============
+
+The Advanced Options section of the raspi-config utility can enable and disable
+Device Tree use, as well as toggling the I2C and SPI interfaces. Note that it
+is possible to both enable an interface and blacklist the driver, if for some
+reason you should want to defer the loading.
+
+Modules
+=======
+
+As well as describing the hardware, Device Tree also gives enough information
+to allow suitable driver modules to be located and loaded, with the corollary
+that unneeded modules are not loaded. As a result it should be possible to
+remove lines from /etc/modules, and /etc/modprobe.d/raspi-blacklist.conf can
+have its contents deleted (or commented out).
+
+Using Overlays
+==============
+
+Overlays are loaded using the "dtoverlay" directive. As an example, consider the
+popular lirc-rpi module, the Linux Infrared Remote Control driver. In the
+pre-DT world this would be loaded from /etc/modules, with an explicit
+"modprobe lirc-rpi" command, or programmatically by lircd. With DT enabled,
+this becomes a line in config.txt:
+
+    dtoverlay=lirc-rpi
+
+This causes the file /boot/overlays/lirc-rpi-overlay.dtb to be loaded. By
+default it will use GPIOs 17 (out) and 18 (in), but this can be modified using
+DT parameters:
+
+    dtoverlay=lirc-rpi,gpio_out_pin=17,gpio_in_pin=13
+
+Parameters always have default values, although in some cases (e.g. "w1-gpio")
+it is necessary to provided multiple overlays in order to get the desired
+behaviour. See the list of overlays below for a description of the parameters and their defaults.
+
+
+The Overlay and Parameter Reference
+===================================
+
+Name:   i2c-rtc
+Info:   Adds support for a number of I2C Real Time Clock devices
+Load:   dtoverlay=i2c-rtc,<param>
+Params: ds1307                   Select the DS1307 device
+        ds3231                   Select the DS3231 device
+        pcf2127                  Select the PCF2127 device
+        pcf8523                  Select the PCF8523 device
+        pcf8563                  Select the PCF8563 device
+
+
+Troubleshooting
+===============
+
+If you are experiencing problems that you think are DT-related, enable DT
+diagnostic output by adding this to /boot/config.txt:
+
+    dtdebug=on
+
+and rebooting. Then run:
+
+    sudo vcdbg log msg
+
+and look for relevant messages.
+
+
+Further reading
+===============
+
+This is only meant to be a quick introduction to the subject of Device Tree on
+Raspberry Pi. There is a more complete explanation here:
+
+http://www.raspberrypi.org/documentation/configuration/device-tree.md

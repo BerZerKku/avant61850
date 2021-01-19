@@ -1,0 +1,11 @@
+*.cmd
+*.o
+*.symvers
+*.order
+*.ko
+.tmp_versions/
+*.mod.*
+
+!drivers/release/3.18.11/*
+!drivers/release/3.18.11-rt6/*
+!drivers/release/3.18.y/*

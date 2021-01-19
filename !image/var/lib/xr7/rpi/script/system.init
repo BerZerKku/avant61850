@@ -1,0 +1,42 @@
+#!/bin/sh
+
+# Allow sharing of this script by multiple hardware types.
+test "$FLX_SCRIPT_PATH" || . /var/lib/xr7/rpi/script/environ
+
+start()
+{
+	echo "System init"
+
+	$FLX_SCRIPT_PATH/drivers.init start
+	ip link set SE01 up
+}
+
+stop()
+{
+	echo "Stopping system"
+
+	$FLX_SCRIPT_PATH/drivers.init stop
+}
+
+case "$1" in
+	start)
+		start
+		;;
+
+	stop)
+		stop
+		;;
+
+	restart)
+		stop
+		start
+		;;
+
+	*)
+		echo "Usage: $0 {start|stop|restart}"
+		exit 1
+		;;
+esac
+
+exit 0
+

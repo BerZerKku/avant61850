@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SCL xmlns="http://www.iec.ch/61850/2003/SCL">
+  <Header id="" version="1.0.0" revision="" toolID="" nameStructure="IEDName">
+  </Header>
+
+  <IED name="IED">
+    <AccessPoint name="AccessPoint">
+      <Server>
+        <LDevice inst="LD">
+          <LN0 lnClass="LLN0" lnType="LLN0_1" inst="">
+            <DataSet name="Cmd" desc="GGIO1.CmdNN">
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd01" />
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd02" />
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd03" />
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd04" />
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd05" />
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd06" />
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd07" />
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd08" />
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd09" />
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd10" />
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd11" />
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd12" />
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd13" />
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd14" />
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd15" />
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd16" />
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd17" />
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd18" />
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd19" />
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd20" />
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd21" />
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd22" />
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd23" />
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd24" />
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd25" />
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd26" />
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd27" />
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd28" />
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd29" />
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd30" />
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd31" />
+              <FCDA ldInst="LD" lnClass="GGIO" lnInst="1" fc="ST" doName="Cmd32" />
+            </DataSet>
+          </LN0>
+          <LN lnClass="GGIO" lnType="GGIO_1" inst="1" prefix="" desc="Monitor Cmd1...Cmd32 from GOOSE source 1" />
+          <LN lnClass="LPHD" lnType="LPHD_1" inst="1" prefix="" desc="Physical device information" />
+          <LN lnClass="LGOS" lnType="LGOS_1" inst="1" prefix="" desc="GOOSE subscription 1" />
+        </LDevice>
+      </Server>
+    </AccessPoint>
+  </IED>
+  <DataTypeTemplates>
+
+    <LNodeType id="LLN0_1" lnClass="LLN0"/>
+
+    <LNodeType id="GGIO_1" lnClass="GGIO">
+      <DO name="Cmd01" type="SPS_1" desc="Команда 1" />
+      <DO name="Cmd02" type="SPS_1" desc="Команда 2" />
+      <DO name="Cmd03" type="SPS_1" desc="Команда 3" />
+      <DO name="Cmd04" type="SPS_1" desc="Команда 4" />
+      <DO name="Cmd05" type="SPS_1" desc="Команда 5" />
+      <DO name="Cmd06" type="SPS_1" desc="Команда 6" />
+      <DO name="Cmd07" type="SPS_1" desc="Команда 7" />
+      <DO name="Cmd08" type="SPS_1" desc="Команда 8" />
+      <DO name="Cmd09" type="SPS_1" desc="Команда 9" />
+      <DO name="Cmd10" type="SPS_1" desc="Команда 10" />
+      <DO name="Cmd11" type="SPS_1" desc="Команда 11" />
+      <DO name="Cmd12" type="SPS_1" desc="Команда 12" />
+      <DO name="Cmd13" type="SPS_1" desc="Команда 13" />
+      <DO name="Cmd14" type="SPS_1" desc="Команда 14" />
+      <DO name="Cmd15" type="SPS_1" desc="Команда 15" />
+      <DO name="Cmd16" type="SPS_1" desc="Команда 16" />
+      <DO name="Cmd17" type="SPS_1" desc="Команда 17" />
+      <DO name="Cmd18" type="SPS_1" desc="Команда 18" />
+      <DO name="Cmd19" type="SPS_1" desc="Команда 19" />
+      <DO name="Cmd20" type="SPS_1" desc="Команда 20" />
+      <DO name="Cmd21" type="SPS_1" desc="Команда 21" />
+      <DO name="Cmd22" type="SPS_1" desc="Команда 22" />
+      <DO name="Cmd23" type="SPS_1" desc="Команда 23" />
+      <DO name="Cmd24" type="SPS_1" desc="Команда 24" />
+      <DO name="Cmd25" type="SPS_1" desc="Команда 25" />
+      <DO name="Cmd26" type="SPS_1" desc="Команда 26" />
+      <DO name="Cmd27" type="SPS_1" desc="Команда 27" />
+      <DO name="Cmd28" type="SPS_1" desc="Команда 28" />
+      <DO name="Cmd29" type="SPS_1" desc="Команда 29" />
+      <DO name="Cmd30" type="SPS_1" desc="Команда 30" />
+      <DO name="Cmd31" type="SPS_1" desc="Команда 31" />
+      <DO name="Cmd32" type="SPS_1" desc="Команда 32" />
+    </LNodeType>
+
+    <LNodeType id="LPHD_1" lnClass="LPHD">
+      <DO name="Sim"           type="SPS_1" />
+    </LNodeType>
+
+    <LNodeType id="LGOS_1" lnClass="LGOS">
+      <!-- Status information -->
+      <DO name="LastStNum"     type="INS_1" />
+      <DO name="NdsCom"        type="SPS_1" />
+      <DO name="St"            type="SPS_1" />
+      <DO name="SimSt"         type="SPS_1" />
+      <DO name="RxConfRevNum"  type="INS_1" />
+      <!-- Status information (custom) -->
+      <DO name="LastSqNum"     type="INS_1" />
+      <DO name="TimeToLive"    type="INS_1" />
+      <DO name="BehIn"         type="ENS_Beh_On_1" />
+      <DO name="BehOut"        type="ENS_Beh_Off_1" />
+    </LNodeType>
+
+    <!-- Data Objects Type -->
+
+    <DOType id="ENS_Beh_Off_1" cdc="ENS">
+      <DA name="stVal" bType="Enum"      fc="ST" dchg="true" type="BehaviourModeKind"> <Val>off</Val> </DA>
+      <DA name="q"     bType="Quality"   fc="ST" dchg="true" />
+      <DA name="t"     bType="Timestamp" fc="ST" />
+    </DOType>
+
+    <DOType id="ENS_Beh_On_1" cdc="ENS">
+      <DA name="stVal" bType="Enum"      fc="ST" dchg="true" type="BehaviourModeKind"> <Val>on</Val> </DA>
+      <DA name="q"     bType="Quality"   fc="ST" dchg="true" />
+      <DA name="t"     bType="Timestamp" fc="ST" />
+    </DOType>
+
+    <DOType id="SPS_1" cdc="SPS">
+      <DA name="stVal" bType="BOOLEAN"   fc="ST" dchg="true" > <Val>false</Val> </DA>
+      <DA name="q"     bType="Quality"   fc="ST" dchg="true" />
+      <DA name="t"     bType="Timestamp" fc="ST" />
+    </DOType>
+
+    <DOType id="INS_1" cdc="INS">
+      <DA name="stVal" bType="INT32"     fc="ST" dchg="true" > <Val>0</Val> </DA>
+      <DA name="q"     bType="Quality"   fc="ST" dchg="true" />
+      <DA name="t"     bType="Timestamp" fc="ST" />
+    </DOType>
+
+    <EnumType id="BehaviourModeKind">
+      <EnumVal ord="1">on</EnumVal>
+      <EnumVal ord="2">blocked</EnumVal>
+      <EnumVal ord="3">test</EnumVal>
+      <EnumVal ord="4">test/blocked</EnumVal>
+      <EnumVal ord="5">off</EnumVal>
+    </EnumType>
+
+  </DataTypeTemplates>
+</SCL>

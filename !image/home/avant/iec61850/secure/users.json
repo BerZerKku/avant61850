@@ -1,0 +1,18 @@
+{
+    "user0": {
+        "password" : "passwd0",
+        "role"     : "superuser"
+    },
+    "user1": {
+        "password" : "passwd1",
+        "role"     : "admin"
+    },
+    "user2": {
+        "password" : "passwd2",
+        "role"     : "operator"
+    },
+    "user3": {
+        "password" : "passwd3",
+        "role"     : "observer"
+    }
+}

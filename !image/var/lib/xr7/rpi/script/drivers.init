@@ -1,0 +1,283 @@
+#!/bin/sh 
+
+# Allow sharing of this script by multiple hardware types.
+test "$FLX_DRIVER_PATH" || . /var/lib/xr7/rpi/script/environ
+# Support multiple kernels.
+VERSION=$(uname -r)
+if test -d "$FLX_DRIVER_PATH/$VERSION" ; then
+	FLX_DRIVER_PATH=$FLX_DRIVER_PATH/$VERSION
+fi
+
+test -r /etc/default/xrs && . /etc/default/xrs
+
+ready=""
+ready="$ready /sys/devices/soc/soc:xrs_guard/xrs-guard/ready"
+ready="$ready /sys/devices/flx_bus_i2c-0/0.xrs/xrs/ready"
+ready="$ready /sys/devices/flx_bus_mdio-0/0.xrs/xrs/ready"
+first_boot=/etc/xrs-first-boot
+xrstype=""
+hwtype=""
+need_reboot=""
+
+if test "$FLX_BUS" = "mdio" ; then
+	FLX_BUS=mdio
+else
+	FLX_BUS=i2c
+fi
+
+# Detect XRS chip type. Sets variables xrstype and hwtype.
+identify_xrs()
+{
+	# It may take some time for /proc file to appear.
+	typefile=/proc/driver/flx_xrs/device00_type
+	i=5
+	while test ! -e "$typefile" && test $i -gt 0 ; do
+		i=$(($i - 1))
+		sleep 1
+	done
+	xrstype=$(cat $typefile)
+
+	if test ! "$xrstype" ; then
+		echo "ERROR: Failed to detect XRS chip" >&2
+		return 2
+	fi
+
+	hwtype=$(echo "rpi-${xrstype%[EF]}" | awk '{ print(tolower($0)) }')
+}
+
+# Set LED access to either via I2C or MDIO.
+set_led_access()
+{
+	dtparam=$(grep ^dtparam= /boot/config.txt)
+	test "$dtparam" || return 0
+
+	# Ignore if either i2c_leds or mdio_leds device tree parameter
+	# is missing.
+	test "${dtparam%i2c_leds=*}" != "$dtparam" || return 0
+	test "${dtparam%mdio_leds=*}" != "$dtparam" || return 0
+
+	# Avoid writing to file unnecessarily.
+	case "$FLX_BUS" in
+		i2c)
+			test "${dtparam%i2c_leds=on*}" != "$dtparam" &&
+				test "${dtparam%mdio_leds=off*}" != "$dtparam" &&
+				return 0
+
+			sed -i \
+				-e 's/i2c_leds=off/i2c_leds=on/' \
+				-e 's/mdio_leds=on/mdio_leds=off/' \
+				/boot/config.txt
+			;;
+		mdio)
+			test "${dtparam%i2c_leds=off*}" != "$dtparam" &&
+				test "${dtparam%mdio_leds=on*}" != "$dtparam" &&
+				return 0
+
+			sed -i \
+				-e 's/i2c_leds=on/i2c_leds=off/' \
+				-e 's/mdio_leds=off/mdio_leds=on/' \
+				/boot/config.txt
+			;;
+	esac
+
+	sync ; sync ; sync
+	echo "LED access changed, reboot needed."
+	need_reboot=yes
+}
+
+# Setup system for detected XRS chip.
+# Selects correct device tree files and sets XR7 platform HW type.
+set_hw_type()
+{
+	# Only at first boot with XRS Reference Board connected.
+	test -e "$first_boot" || return 0
+
+	suffix=$(echo "$xrstype" | awk '{ print(tolower($0)) }')
+#	dtb1="/boot/bcm2708-rpi-b-plus.dtb"
+#	dtb1xrs="${dtb1%.dtb}-$suffix.dtb"
+#	dtb2="/boot/bcm2709-rpi-2-b.dtb"
+#	dtb2xrs="${dtb2%.dtb}-$suffix.dtb"
+#	dtb3="/boot/bcm2710-rpi-3-b.dtb"
+#	dtb3xrs="${dtb3%.dtb}-$suffix.dtb"
+	changed=""
+
+	if
+#		test ! -e "$dtb1xrs" ||
+#		test ! -e "$dtb2xrs" ||
+#		test ! -e "$dtb3xrs" ||
+		test ! -d "/var/lib/xr7/$hwtype" ; then
+		echo "ERROR: Unknown XRS chip $xrstype" >&2
+		return 2
+	fi
+
+#	if ! cmp -s "$dtb1xrs" "$dtb1" ; then
+#		cp "$dtb1xrs" "$dtb1"
+#		changed=yes
+#	fi
+#	if ! cmp -s "$dtb2xrs" "$dtb2" ; then
+#		cp "$dtb2xrs" "$dtb2"
+#		changed=yes
+#	fi
+#	if ! cmp -s "$dtb3xrs" "$dtb3" ; then
+#		cp "$dtb3xrs" "$dtb3"
+#		changed=yes
+#	fi
+
+	cur_hwtype=$(readlink /etc/xr7)
+	cur_hwtype=${cur_hwtype##*/}
+	if test "$cur_hwtype" != "$hwtype" ; then
+		ln -sfn "/var/lib/xr7/$hwtype" /etc/xr7
+		rm -f /etc/fcmd/*/startup/*
+		changed=yes
+	fi
+
+	rm -f "$first_boot"
+	sync ; sync ; sync
+
+	if test "$changed" ; then
+		echo "Prepared for $xrstype, reboot needed."
+		need_reboot=yes
+	fi
+
+	return 0
+}
+
+# Prepare xr7ptp to use PTP delay names from sysfs files.
+setup_delay_files()
+{
+	delaydir="/var/run/xr7ptp"
+	mdiodevdir="/sys/bus/mdio_bus/devices"
+
+	mkdir -p $delaydir
+
+	rm -f $delaydir/*_delay.conf
+	case "$xrstype" in
+		XRS7003E|XRS7003F|XRS3003F)
+			ln -s $mdiodevdir/gpio-1:01/current_interface $delaydir/CE01_delay.conf
+			ln -s $mdiodevdir/gpio-1:00/current_interface $delaydir/CE02_delay.conf
+			;;
+		XRS7004E|XRS7004F)
+			ln -s $mdiodevdir/gpio-1:01/current_interface $delaydir/CE01_delay.conf
+			ln -s $mdiodevdir/gpio-1:00/current_interface $delaydir/CE02_delay.conf
+			ln -s $mdiodevdir/gpio-2:01/current_interface $delaydir/CE03_delay.conf
+			;;
+	esac
+}
+
+start()
+{
+	echo "Load drivers"
+
+	# Identify XRS chip first.
+	# RPi interrupt is enabled later by writing to sysfs ready file
+	# to avoid level-sensitive interrupt from unconfigured HW to kill CPU.
+	# Module mdio-gpio must be loaded after XRS is brought out of reset.
+	modprobe i2c-algo-bit
+	insmod $FLX_DRIVER_PATH/flx_bus.ko
+	insmod $FLX_DRIVER_PATH/flx_bus_${FLX_BUS}.ko
+	insmod $FLX_DRIVER_PATH/flx_xrs.ko
+	modprobe mdio-gpio
+
+	identify_xrs || return 2
+	set_hw_type || return 2
+	set_led_access || return 2
+
+	if test "$need_reboot" = yes; then
+		echo "Rebooting..."
+		reboot
+		return 2
+	fi
+
+	setup_delay_files
+
+	# On BVP_61850_v2.4 reset pin for IC xf1 is same as XRS
+	sleep 1
+	ip link set xf1 up
+
+	insmod $FLX_DRIVER_PATH/dp83848.ko
+	insmod $FLX_DRIVER_PATH/m88e1512.ko
+	modprobe marvell
+	insmod $FLX_DRIVER_PATH/flx_gpio.ko
+	modprobe leds-gpio
+
+	insmod $FLX_DRIVER_PATH/flx_i2c_mdio.ko
+	insmod $FLX_DRIVER_PATH/flx_i2c_gpio.ko
+
+	insmod $FLX_DRIVER_PATH/flx_time.ko
+	insmod $FLX_DRIVER_PATH/flx_frtc.ko
+	insmod $FLX_DRIVER_PATH/flx_fpts.ko
+	insmod $FLX_DRIVER_PATH/flx_frs.ko ipo=1
+
+	# Raspberry Pi Ethernet (smsc95xx) does not like frames with
+	# length 1500 + management trailer, so decrease MTU.
+	# Also bring up interfaces momentarily to configure PHYs
+	# before enabling interrupt.
+	for i in SE01 CE01 CE02 CE03 ; do
+		if ip link | grep -q " $i:" ; then
+			ip link set dev $i mtu 1498
+			ip link set dev $i up
+			ip link set dev $i down
+		fi
+	done
+
+	# Signal readyness, this enables RPi interrupt.
+	for i in $ready ; do
+		test -e $i || continue
+		echo 1 > $i 
+		break
+	done
+}
+
+stop()
+{
+	echo "Unload drivers"
+
+	ip link set xf1 down
+
+	lsmod | grep -q '^flx_frs ' && rmmod flx_frs
+	lsmod | grep -q '^flx_fpts ' && rmmod flx_fpts
+	lsmod | grep -q '^flx_frtc ' && rmmod flx_frtc
+	lsmod | grep -q '^flx_time ' && rmmod flx_time
+
+	lsmod | grep -q '^flx_i2c_gpio ' && rmmod flx_i2c_gpio
+	lsmod | grep -q '^flx_i2c_mdio ' && rmmod flx_i2c_mdio
+	lsmod | grep -q '^leds_gpio ' && rmmod leds_gpio
+	lsmod | grep -q '^flx_gpio ' && rmmod flx_gpio
+
+	lsmod | grep -q '^m88e1512 ' && rmmod m88e1512
+	lsmod | grep -q '^dp83848 ' && rmmod dp83848
+	lsmod | grep -q '^marvell ' && rmmod marvell
+
+	# Removing flx_xrs activates also reset.
+	lsmod | grep -q '^flx_xrs ' && rmmod flx_xrs
+	lsmod | grep -q '^flx_bus_i2c ' && rmmod flx_bus_i2c
+	lsmod | grep -q '^flx_bus_mdio ' && rmmod flx_bus_mdio
+	lsmod | grep -q '^flx_bus ' && rmmod flx_bus
+
+	echo soc:mdio1 > /sys/bus/platform/drivers/mdio-gpio/unbind
+	echo soc:mdio2 > /sys/bus/platform/drivers/mdio-gpio/unbind
+	modprobe -r mdio-gpio
+}
+
+case "$1" in
+	start)
+		start
+		;;
+
+	stop)
+		stop
+		;;
+
+	restart)
+		stop
+		start
+		;;
+
+	*)
+		echo "Usage: $0 {start|stop|restart}"
+		exit 1
+		;;
+esac
+
+exit 0
+

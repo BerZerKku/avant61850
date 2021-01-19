@@ -1,0 +1,56 @@
+#!/bin/sh
+# chkconfig: - 95 1
+# description:
+# processname:
+
+ROOTFS=/var/ubuntu20
+DIR=/home/avant
+
+update() {
+  echo -n $"Starting update Prosoft applications.\n"
+  chmod +x $DIR/bvp/bvp61850
+  chmod +x $DIR/iec61850/update.sh
+  $DIR/iec61850/update.sh
+}
+
+start() {
+  if [ -f $DIR/iec61850/first_boot ]; then
+    update
+    rm -f $DIR/iec61850/first_boot
+  fi
+
+  echo -n $"Starting Prosoft applications.\n"
+  insmod $FLX_DRIVER_PATH/ttyebus.ko
+  $DIR/ch-mount.sh -m $ROOTFS  
+  chroot $ROOTFS sh -c "cd /root/bvp; ./bvp61850" > /dev/null 2>&1 &
+  sleep 5
+  chroot $ROOTFS sh -c "cd /root/iec61850; ./avant.sh" > /dev/null 2>&1 &
+  $DIR/iec61850/bin/time_src_ctl.sh > /dev/null 2>&1 &
+}
+
+stop() {
+  echo -n $"Shutting down Prosoft applications.\n"
+  pkill bvp61850
+  pkill avant
+  pkill time_src_ctl
+  $DIR/ch-mount.sh -u $ROOTFS
+}
+
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart)
+    stop
+    start
+    ;;
+  *)
+    echo $"Usage: $0 {start|stop|restart}"
+    exit 1
+esac
+
+echo
+exit 0

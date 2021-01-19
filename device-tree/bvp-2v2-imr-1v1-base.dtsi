@@ -1,0 +1,125 @@
+/ {
+	aliases {
+		mdio-gpio1 = &mdio1;
+		mdio-gpio2 = &mdio2;
+		mdio-gpio3 = &mdio3;
+	};
+};
+
+/ {
+	__overrides__ {
+		i2c_leds = <&leds_i2c>,"status";
+	};
+};
+
+&gpio {
+	
+	mdio1_pins: mdio1 {
+		brcm,pins = <23 22>;		/* MDC, MDIO */
+		brcm,function = <1 0>;
+	};
+
+	mdio2_pins: mdio2 {
+		brcm,pins = <17 16>;		/* MDC, MDIO */
+		brcm,function = <1 0>;
+	};
+
+	mdio3_pins: mdio3 {
+		brcm,pins = <5 4>;		/* MDC, MDIO */
+		brcm,function = <1 0>;
+	};
+};
+
+&soc {
+
+	mdio1: mdio1 {
+		compatible = "virtual,mdio-gpio";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&mdio1_pins>;
+		/* MDC and MDIO, in that order */
+		gpios = <&gpio 23 0
+			 &gpio 22 0>;
+	};
+
+	mdio2: mdio2 {
+		compatible = "virtual,mdio-gpio";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&mdio2_pins>;
+		/* MDC and MDIO, in that order */
+		gpios = <&gpio 17 0
+			 &gpio 16 0>;
+	};
+
+	mdio3: mdio3 {
+		compatible = "virtual,mdio-gpio";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&mdio3_pins>;
+		/* MDC and MDIO, in that order */
+		gpios = <&gpio 5 0
+			 &gpio 4 0>;
+	};
+
+	/* GPIO LEDs accessed via I2C. */
+	leds_i2c: leds_i2c {
+		compatible = "gpio-leds";
+		status = "disabled";
+
+		rj45_1_right_behind_i2c {
+			label = "xrs:yellow:rj45_1";
+			linux,default-trigger = "none";
+			gpios = <&flx_gpio_behind_i2c 17 0>;
+		};
+
+		rj45_2_right_behind_i2c {
+			label = "xrs:yellow:rj45_2";
+			linux,default-trigger = "none";
+			gpios = <&flx_gpio_behind_i2c 18 0>;
+		};
+
+		sfp1_yellow_behind_i2c {
+			label = "xrs:yellow:sfp1";
+			linux,default-trigger = "none";
+			gpios = <&flx_gpio_behind_i2c 12 0>;
+		};
+
+		sfp2_yellow_behind_i2c {
+			label = "xrs:yellow:sfp2";
+			linux,default-trigger = "none";
+			gpios = <&flx_gpio_behind_i2c 13 0>;
+		};
+
+		xrs_led1_behind_i2c {
+			label = "xrs:green:user";
+			linux,default-trigger = "none";
+			gpios = <&flx_gpio_behind_i2c 15 0>;
+		};
+
+		xrs_led2_behind_i2c {
+			label = "xrs:red:user";
+			linux,default-trigger = "none";
+			gpios = <&flx_gpio_behind_i2c 16 0>;
+		};
+	};
+
+	/*
+	 * Use of flx_xrs_guard is needed for XRS MDIO access.
+	 * It can be used with I2C access, too.
+	 */
+//	xrs_guard {
+//		compatible = "flx,xrs-guard";
+//		/* GPIO signal for power OK, optional */
+//		power-ok = <&gpio 42 0>;
+//		/* GPIO signal for reset, optional */
+//		reset = <&gpio 43 0>;	/* <&gpio 44 0> <&gpio 45 0> */
+//		/* Interrupt to enable via sysfs, optional */
+//		interrupt-parent = <&gpio>;
+//		interrupts = <24 8>; /* <24 8> <18 8> <6 8> */
+//	};
+};
+

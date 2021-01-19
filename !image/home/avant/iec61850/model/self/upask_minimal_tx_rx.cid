@@ -1,0 +1,1117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SCL xmlns="http://www.iec.ch/61850/2003/SCL">
+  <Header id="" version="1.0.0" revision="" toolID="" nameStructure="IEDName">
+  </Header>
+  <Communication>
+    <SubNetwork name="subnetwork1" type="8-MMS">
+      <ConnectedAP iedName="AVANT1" apName="accessPoint1">
+        <Address>
+          <P type="IP">10.0.0.2</P>
+          <P type="IP-SUBNET">255.255.255.0</P>
+          <P type="IP-GATEWAY">10.0.0.1</P>
+          <P type="OSI-TSEL">0001</P>
+          <P type="OSI-PSEL">00000001</P>
+          <P type="OSI-SSEL">0001</P>
+        </Address>
+        <GSE ldInst="RX01" cbName="gcbGooseTxCmd">
+           <Address>
+                <P type="VLAN-ID">1</P>
+                <P type="VLAN-PRIORITY">4</P>
+                <P type="MAC-Address">01-0c-cd-01-00-01</P>
+                <P type="APPID">1000</P>
+           </Address>
+           <MinTime>4</MinTime>
+           <MaxTime>1000</MaxTime>
+        </GSE>
+        <GSE ldInst="RX01" cbName="gcbGooseTxCmdDir">
+           <Address>
+                <P type="VLAN-ID">1</P>
+                <P type="VLAN-PRIORITY">4</P>
+                <P type="MAC-Address">01-0c-cd-01-00-01</P>
+                <P type="APPID">1000</P>
+           </Address>
+           <MinTime>4</MinTime>
+           <MaxTime>1000</MaxTime>
+        </GSE>
+      </ConnectedAP>
+    </SubNetwork>
+  </Communication>
+  <IED name="AVANT1">
+    <Services>
+      <DynAssociation />
+      <GetDirectory />
+      <GetDataObjectDefinition />
+      <GetDataSetValue />
+      <DataSetDirectory />
+      <ReadWrite />
+      <GetCBValues />
+      <ConfLNs fixPrefix="true" fixLnInst="true" />
+      <GOOSE max="32" />
+      <!-- <GSSE max="8" /> устарел с версии 2.0 -->
+      <FileHandling />
+      <GSEDir />
+      <TimerActivatedControl />
+    </Services>
+    <AccessPoint name="accessPoint1">
+      <Server>
+        <Authentication />
+
+        <LDevice inst="SYS">
+
+          <LN0 lnClass="LLN0" lnType="LLN0_SYS" inst="">
+            <!--
+            ЖУРНАЛ ОПЕРАТИВНЫЙ: журнал в энергонезависимой памяти устройств, в который записываются события,
+            возникающие при проведении технического обслуживания (изменение конфигураций, программных
+            настроек, обновление ПО) и оперативном обслуживании оборудования.
+            -->
+            <DataSet name="Service" desc="ЖУРНАЛ ОПЕРАТИВНЫЙ">
+              <!-- Обязательные сигналы (согласно СТО) -->
+              <FCDA ldInst="SYS"  lnClass="LLN0" fc="ST" lnInst="1"  prefix=""   doName="LEDRs"      desc="Сброс сигнализации"   />
+              <FCDA ldInst="SYS"  lnClass="IDOR" fc="ST" lnInst="1"  prefix=""   doName="DOpn"       desc="Дверь шкафа открыта"   />
+              <FCDA ldInst="SYS"  lnClass="LLN0" fc="ST" lnInst="1"  prefix=""   doName="Beh"        desc="Режим работы УПАСК: Ввыедено, Тест, Выведено"  />
+              <FCDA ldInst="SYS"  lnClass="LLN0" fc="ST" lnInst="1"  prefix=""   doName="LocKey"     desc="Положение ключа SAC2 'Режим управления'"  />
+              <FCDA ldInst="SYS"  lnClass="LPHD" fc="ST" lnInst="1"  prefix=""   doName="Sim"        desc="Режим 'Моделирование'" />
+
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="Mod"        desc="Положение ключа SAC1" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="1"  prefix="RX" doName="CmdDirMod1" desc="Положение ключа SA1.1" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="1"  prefix="RX" doName="CmdDirMod2" desc="Положение ключа SA1.2" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="1"  prefix="RX" doName="CmdDirMod3" desc="Положение ключа SA1.3" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="1"  prefix="RX" doName="CmdDirMod4" desc="Положение ключа SA1.4" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="1"  prefix="RX" doName="CmdDirMod5" desc="Положение ключа SA1.5" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="1"  prefix="RX" doName="CmdDirMod6" desc="Положение ключа SA1.6" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="1"  prefix="RX" doName="CmdDirMod7" desc="Положение ключа SA1.7" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="1"  prefix="RX" doName="CmdDirMod8" desc="Положение ключа SA1.8" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="1"  prefix="RX" doName="Mod"        desc="Положение ключа SA1"  />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="2"  prefix="RX" doName="Mod"        desc="Положение ключа SA2"  />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="3"  prefix="RX" doName="Mod"        desc="Положение ключа SA3"  />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="4"  prefix="RX" doName="Mod"        desc="Положение ключа SA4"  />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="5"  prefix="RX" doName="Mod"        desc="Положение ключа SA5"  />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="6"  prefix="RX" doName="Mod"        desc="Положение ключа SA6"  />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="7"  prefix="RX" doName="Mod"        desc="Положение ключа SA7"  />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="8"  prefix="RX" doName="Mod"        desc="Положение ключа SA8"  />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="9"  prefix="RX" doName="Mod"        desc="Положение ключа SA9"  />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="10" prefix="RX" doName="Mod"        desc="Положение ключа SA10" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="11" prefix="RX" doName="Mod"        desc="Положение ключа SA11" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="12" prefix="RX" doName="Mod"        desc="Положение ключа SA12" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="13" prefix="RX" doName="Mod"        desc="Положение ключа SA13" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="14" prefix="RX" doName="Mod"        desc="Положение ключа SA14" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="15" prefix="RX" doName="Mod"        desc="Положение ключа SA15" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="16" prefix="RX" doName="Mod"        desc="Положение ключа SA16" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="17" prefix="RX" doName="Mod"        desc="Положение ключа SA17" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="18" prefix="RX" doName="Mod"        desc="Положение ключа SA18" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="19" prefix="RX" doName="Mod"        desc="Положение ключа SA19" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="20" prefix="RX" doName="Mod"        desc="Положение ключа SA20" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="21" prefix="RX" doName="Mod"        desc="Положение ключа SA21" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="22" prefix="RX" doName="Mod"        desc="Положение ключа SA22" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="23" prefix="RX" doName="Mod"        desc="Положение ключа SA23" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="24" prefix="RX" doName="Mod"        desc="Положение ключа SA24" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="25" prefix="RX" doName="Mod"        desc="Положение ключа SA25" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="26" prefix="RX" doName="Mod"        desc="Положение ключа SA26" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="27" prefix="RX" doName="Mod"        desc="Положение ключа SA27" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="28" prefix="RX" doName="Mod"        desc="Положение ключа SA28" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="29" prefix="RX" doName="Mod"        desc="Положение ключа SA29" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="30" prefix="RX" doName="Mod"        desc="Положение ключа SA30" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="31" prefix="RX" doName="Mod"        desc="Положение ключа SA31" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="32" prefix="RX" doName="Mod"        desc="Положение ключа SA32" />
+
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="Beh"        desc="Ключ SAC1" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="1"  prefix="RX" doName="CmdDir1"    desc="Ключ SA1.1" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="1"  prefix="RX" doName="CmdDir2"    desc="Ключ SA1.2" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="1"  prefix="RX" doName="CmdDir3"    desc="Ключ SA1.3" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="1"  prefix="RX" doName="CmdDir4"    desc="Ключ SA1.4" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="1"  prefix="RX" doName="CmdDir5"    desc="Ключ SA1.5" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="1"  prefix="RX" doName="CmdDir6"    desc="Ключ SA1.6" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="1"  prefix="RX" doName="CmdDir7"    desc="Ключ SA1.7" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="1"  prefix="RX" doName="CmdDir8"    desc="Ключ SA1.8" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="1"  prefix="RX" doName="Beh"        desc="Ключ SA1"  />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="2"  prefix="RX" doName="Beh"        desc="Ключ SA2"  />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="3"  prefix="RX" doName="Beh"        desc="Ключ SA3"  />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="4"  prefix="RX" doName="Beh"        desc="Ключ SA4"  />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="5"  prefix="RX" doName="Beh"        desc="Ключ SA5"  />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="6"  prefix="RX" doName="Beh"        desc="Ключ SA6"  />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="7"  prefix="RX" doName="Beh"        desc="Ключ SA7"  />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="8"  prefix="RX" doName="Beh"        desc="Ключ SA8"  />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="9"  prefix="RX" doName="Beh"        desc="Ключ SA9"  />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="10" prefix="RX" doName="Beh"        desc="Ключ SA10" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="11" prefix="RX" doName="Beh"        desc="Ключ SA11" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="12" prefix="RX" doName="Beh"        desc="Ключ SA12" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="13" prefix="RX" doName="Beh"        desc="Ключ SA13" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="14" prefix="RX" doName="Beh"        desc="Ключ SA14" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="15" prefix="RX" doName="Beh"        desc="Ключ SA15" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="16" prefix="RX" doName="Beh"        desc="Ключ SA16" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="17" prefix="RX" doName="Beh"        desc="Ключ SA17" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="18" prefix="RX" doName="Beh"        desc="Ключ SA18" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="19" prefix="RX" doName="Beh"        desc="Ключ SA19" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="20" prefix="RX" doName="Beh"        desc="Ключ SA20" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="21" prefix="RX" doName="Beh"        desc="Ключ SA21" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="22" prefix="RX" doName="Beh"        desc="Ключ SA22" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="23" prefix="RX" doName="Beh"        desc="Ключ SA23" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="24" prefix="RX" doName="Beh"        desc="Ключ SA24" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="25" prefix="RX" doName="Beh"        desc="Ключ SA25" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="26" prefix="RX" doName="Beh"        desc="Ключ SA26" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="27" prefix="RX" doName="Beh"        desc="Ключ SA27" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="28" prefix="RX" doName="Beh"        desc="Ключ SA28" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="29" prefix="RX" doName="Beh"        desc="Ключ SA29" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="30" prefix="RX" doName="Beh"        desc="Ключ SA30" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="31" prefix="RX" doName="Beh"        desc="Ключ SA31" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="32" prefix="RX" doName="Beh"        desc="Ключ SA32" />
+            </DataSet>
+
+            <!--
+            ЖУРНАЛ ТЕХНОЛОГИЧЕСКИЙ: журнал в энергонезависимой памяти устройств, в который записываются события о
+            неисправностях (неисправность аппаратуры и канала), отклонениях от нормального режима работы (снижение
+            выходной мощности передатчика, помеха в ВЧ канале, сбои по питанию и т.д.) и срабатывание сигнализации.
+            -->
+            <DataSet name="Alarm" desc="ЖУРНАЛ ТЕХНОЛОГИЧЕСКИЙ">
+              <!-- Обязательные сигналы (согласно СТО) -->
+              <!-- ================================================================================================= -->
+              <!-- Для архитектур типа: I/II/III -->
+              <FCDA ldInst="SYS"  lnClass="LPHD" fc="ST" lnInst="1"  prefix=""   doName="PwrUp"       desc="Начало работы после подачи питания или перезагрузки" />
+              <FCDA ldInst="SYS"  lnClass="LLN0" fc="ST" lnInst="1"  prefix=""   doName="Health"      desc="Общий критерий состояния УПАСК"   />
+              <FCDA ldInst="SYS"  lnClass="LPHD" fc="ST" lnInst="1"  prefix=""   doName="PhyHealth"   desc="Состояние аппаратной части УПАСК" />
+              <!-- ================================================================================================= -->
+              <!-- Для архитектур типа: II/III -->
+              <FCDA ldInst="SYS"  lnClass="LTMS" fc="ST" lnInst="1"  prefix=""   doName="TmSyn"       desc="Состояние синхронизации времени" />
+              <FCDA ldInst="TX01" lnClass="LGOS" fc="ST" lnInst="1"  prefix=""   doName="St"          desc="Состояние приёма GOOSE №1" />
+              <FCDA ldInst="TX01" lnClass="LGOS" fc="ST" lnInst="2"  prefix=""   doName="St"          desc="Состояние приёма GOOSE №2" />
+              <FCDA ldInst="TX01" lnClass="LGOS" fc="ST" lnInst="3"  prefix=""   doName="St"          desc="Состояние приёма GOOSE №3" />
+              <FCDA ldInst="TX01" lnClass="LGOS" fc="ST" lnInst="4"  prefix=""   doName="St"          desc="Состояние приёма GOOSE №4" />
+              <FCDA ldInst="TX01" lnClass="LGOS" fc="ST" lnInst="5"  prefix=""   doName="St"          desc="Состояние приёма GOOSE №5" />
+              <FCDA ldInst="TX01" lnClass="LGOS" fc="ST" lnInst="6"  prefix=""   doName="St"          desc="Состояние приёма GOOSE №6" />
+              <FCDA ldInst="TX01" lnClass="LGOS" fc="ST" lnInst="7"  prefix=""   doName="St"          desc="Состояние приёма GOOSE №7" />
+              <FCDA ldInst="TX01" lnClass="LGOS" fc="ST" lnInst="8"  prefix=""   doName="St"          desc="Состояние приёма GOOSE №8" />
+              <FCDA ldInst="TX01" lnClass="LGOS" fc="ST" lnInst="9"  prefix=""   doName="St"          desc="Состояние приёма GOOSE №9" />
+              <FCDA ldInst="TX01" lnClass="LGOS" fc="ST" lnInst="10" prefix=""   doName="St"          desc="Состояние приёма GOOSE №10" />
+              <FCDA ldInst="TX01" lnClass="LGOS" fc="ST" lnInst="11" prefix=""   doName="St"          desc="Состояние приёма GOOSE №11" />
+              <FCDA ldInst="TX01" lnClass="LGOS" fc="ST" lnInst="12" prefix=""   doName="St"          desc="Состояние приёма GOOSE №12" />
+
+            </DataSet>
+
+            <!--
+            ЖУРНАЛ СРАБАТЫВАНИЙ: журнал в энергонезависимой памяти устройств, в который записываются события о
+            срабатывании (пуск/останов, манипуляция, срабатывание приемника, передача/прием команд и т.д.) аппаратуры от
+            устройств (с воздействием на устройства) РЗА.
+            -->
+            <DataSet name="Event" desc="ЖУРНАЛ СРАБАТЫВАНИЙ">
+              <!-- Обязательные сигналы (согласно СТО) -->
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="1"  prefix="TX" doName="Cmd"         desc="Вход команды 1" />
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="2"  prefix="TX" doName="Cmd"         desc="Вход команды 2" />
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="3"  prefix="TX" doName="Cmd"         desc="Вход команды 3" />
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="4"  prefix="TX" doName="Cmd"         desc="Вход команды 4" />
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="5"  prefix="TX" doName="Cmd"         desc="Вход команды 5" />
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="6"  prefix="TX" doName="Cmd"         desc="Вход команды 6" />
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="7"  prefix="TX" doName="Cmd"         desc="Вход команды 7" />
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="8"  prefix="TX" doName="Cmd"         desc="Вход команды 8" />
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="9"  prefix="TX" doName="Cmd"         desc="Вход команды 9" />
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="10" prefix="TX" doName="Cmd"         desc="Вход команды 10" />
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="11" prefix="TX" doName="Cmd"         desc="Вход команды 11" />
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="12" prefix="TX" doName="Cmd"         desc="Вход команды 12" />
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="13" prefix="TX" doName="Cmd"         desc="Вход команды 13" />
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="14" prefix="TX" doName="Cmd"         desc="Вход команды 14" />
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="15" prefix="TX" doName="Cmd"         desc="Вход команды 15" />
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="16" prefix="TX" doName="Cmd"         desc="Вход команды 16" />
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="17" prefix="TX" doName="Cmd"         desc="Вход команды 17" />
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="18" prefix="TX" doName="Cmd"         desc="Вход команды 18" />
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="19" prefix="TX" doName="Cmd"         desc="Вход команды 19" />
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="20" prefix="TX" doName="Cmd"         desc="Вход команды 20" />
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="21" prefix="TX" doName="Cmd"         desc="Вход команды 21" />
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="22" prefix="TX" doName="Cmd"         desc="Вход команды 22" />
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="23" prefix="TX" doName="Cmd"         desc="Вход команды 23" />
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="24" prefix="TX" doName="Cmd"         desc="Вход команды 24" />
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="25" prefix="TX" doName="Cmd"         desc="Вход команды 25" />
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="26" prefix="TX" doName="Cmd"         desc="Вход команды 26" />
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="27" prefix="TX" doName="Cmd"         desc="Вход команды 27" />
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="28" prefix="TX" doName="Cmd"         desc="Вход команды 28" />
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="29" prefix="TX" doName="Cmd"         desc="Вход команды 29" />
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="30" prefix="TX" doName="Cmd"         desc="Вход команды 30" />
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="31" prefix="TX" doName="Cmd"         desc="Вход команды 31" />
+              <FCDA ldInst="TX01" lnClass="RTPC" fc="ST" lnInst="32" prefix="TX" doName="Cmd"         desc="Вход команды 32" />
+
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx01"     desc="Передача команды 1" />
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx02"     desc="Передача команды 2" />
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx03"     desc="Передача команды 3" />
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx04"     desc="Передача команды 4" />
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx05"     desc="Передача команды 5" />
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx06"     desc="Передача команды 6" />
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx07"     desc="Передача команды 7" />
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx08"     desc="Передача команды 8" />
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx09"     desc="Передача команды 9" />
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx10"     desc="Передача команды 10" />
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx11"     desc="Передача команды 11" />
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx12"     desc="Передача команды 12" />
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx13"     desc="Передача команды 13" />
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx14"     desc="Передача команды 14" />
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx15"     desc="Передача команды 15" />
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx16"     desc="Передача команды 16" />
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx17"     desc="Передача команды 17" />
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx18"     desc="Передача команды 18" />
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx19"     desc="Передача команды 19" />
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx20"     desc="Передача команды 20" />
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx21"     desc="Передача команды 21" />
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx22"     desc="Передача команды 22" />
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx23"     desc="Передача команды 23" />
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx24"     desc="Передача команды 24" />
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx25"     desc="Передача команды 25" />
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx26"     desc="Передача команды 26" />
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx27"     desc="Передача команды 27" />
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx28"     desc="Передача команды 28" />
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx29"     desc="Передача команды 29" />
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx30"     desc="Передача команды 30" />
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx31"     desc="Передача команды 31" />
+              <FCDA ldInst="SYS"  lnClass="ISTX" fc="ST" lnInst="1"  prefix=""   doName="CmdTx32"     desc="Передача команды 32" />
+
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="1"  prefix="RX" doName="Cmd"         desc="Выход команды 1" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="2"  prefix="RX" doName="Cmd"         desc="Выход команды 2" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="3"  prefix="RX" doName="Cmd"         desc="Выход команды 3" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="4"  prefix="RX" doName="Cmd"         desc="Выход команды 4" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="5"  prefix="RX" doName="Cmd"         desc="Выход команды 5" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="6"  prefix="RX" doName="Cmd"         desc="Выход команды 6" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="7"  prefix="RX" doName="Cmd"         desc="Выход команды 7" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="8"  prefix="RX" doName="Cmd"         desc="Выход команды 8" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="9"  prefix="RX" doName="Cmd"         desc="Выход команды 9" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="10" prefix="RX" doName="Cmd"         desc="Выход команды 10" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="11" prefix="RX" doName="Cmd"         desc="Выход команды 11" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="12" prefix="RX" doName="Cmd"         desc="Выход команды 12" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="13" prefix="RX" doName="Cmd"         desc="Выход команды 13" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="14" prefix="RX" doName="Cmd"         desc="Выход команды 14" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="15" prefix="RX" doName="Cmd"         desc="Выход команды 15" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="16" prefix="RX" doName="Cmd"         desc="Выход команды 16" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="17" prefix="RX" doName="Cmd"         desc="Выход команды 17" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="18" prefix="RX" doName="Cmd"         desc="Выход команды 18" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="19" prefix="RX" doName="Cmd"         desc="Выход команды 19" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="20" prefix="RX" doName="Cmd"         desc="Выход команды 20" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="21" prefix="RX" doName="Cmd"         desc="Выход команды 21" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="22" prefix="RX" doName="Cmd"         desc="Выход команды 22" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="23" prefix="RX" doName="Cmd"         desc="Выход команды 23" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="24" prefix="RX" doName="Cmd"         desc="Выход команды 24" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="25" prefix="RX" doName="Cmd"         desc="Выход команды 25" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="26" prefix="RX" doName="Cmd"         desc="Выход команды 26" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="27" prefix="RX" doName="Cmd"         desc="Выход команды 27" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="28" prefix="RX" doName="Cmd"         desc="Выход команды 28" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="29" prefix="RX" doName="Cmd"         desc="Выход команды 29" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="30" prefix="RX" doName="Cmd"         desc="Выход команды 30" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="31" prefix="RX" doName="Cmd"         desc="Выход команды 31" />
+              <FCDA ldInst="RX01" lnClass="RTPC" fc="ST" lnInst="32" prefix="RX" doName="Cmd"         desc="Выход команды 32" />
+
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx01"     desc="Прием команды 1" />
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx02"     desc="Прием команды 2" />
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx03"     desc="Прием команды 3" />
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx04"     desc="Прием команды 4" />
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx05"     desc="Прием команды 5" />
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx06"     desc="Прием команды 6" />
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx07"     desc="Прием команды 7" />
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx08"     desc="Прием команды 8" />
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx09"     desc="Прием команды 9" />
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx10"     desc="Прием команды 10" />
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx11"     desc="Прием команды 11" />
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx12"     desc="Прием команды 12" />
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx13"     desc="Прием команды 13" />
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx14"     desc="Прием команды 14" />
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx15"     desc="Прием команды 15" />
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx16"     desc="Прием команды 16" />
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx17"     desc="Прием команды 17" />
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx18"     desc="Прием команды 18" />
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx19"     desc="Прием команды 19" />
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx20"     desc="Прием команды 20" />
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx21"     desc="Прием команды 21" />
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx22"     desc="Прием команды 22" />
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx23"     desc="Прием команды 23" />
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx24"     desc="Прием команды 24" />
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx25"     desc="Прием команды 25" />
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx26"     desc="Прием команды 26" />
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx27"     desc="Прием команды 27" />
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx28"     desc="Прием команды 28" />
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx29"     desc="Прием команды 29" />
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx30"     desc="Прием команды 30" />
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx31"     desc="Прием команды 31" />
+              <FCDA ldInst="SYS"  lnClass="ISRX" fc="ST" lnInst="1"  prefix=""   doName="CmdRx32"     desc="Прием команды 32" />
+            </DataSet>
+
+            <ReportControl name="ServiceRCB" confRev="1" datSet="Service" rptID="Service" buffered="false" intgPd="1000" bufTime="0" indexed="true">
+              <TrgOps dchg="true" />
+              <OptFields seqNum="true" timeStamp="true" dataSet="true" reasonCode="true" entryID="true" configRef="true" />
+              <RptEnabled max="2" />
+            </ReportControl>
+
+            <ReportControl name="AlarmRCB" confRev="1" datSet="Alarm" rptID="Alarm" buffered="false" intgPd="1000" bufTime="0" indexed="true">
+              <TrgOps dchg="true" />
+              <OptFields seqNum="true" timeStamp="true" dataSet="true" reasonCode="true" entryID="true" configRef="true" />
+              <RptEnabled max="2" />
+            </ReportControl>
+
+            <ReportControl name="EventRCB" confRev="1" datSet="Event" rptID="Event" buffered="false" intgPd="1000" bufTime="0" indexed="true">
+              <TrgOps dchg="true" />
+              <OptFields seqNum="true" timeStamp="true" dataSet="true" reasonCode="true" entryID="true" configRef="true" />
+              <RptEnabled max="2" />
+            </ReportControl>
+
+            <LogControl name="Service" datSet="Service" logName="Service" logEna="true">
+              <TrgOps dchg="true" qchg="true" />
+            </LogControl>
+
+            <LogControl name="Alarm" datSet="Alarm" logName="Alarm" logEna="true">
+              <TrgOps dchg="true" qchg="true" />
+            </LogControl>
+
+            <LogControl name="Event" datSet="Event" logName="Event" logEna="true">
+              <TrgOps dchg="true" qchg="true" />
+            </LogControl>
+
+            <Log name="Service" />
+            <Log name="Alarm" />
+            <Log name="Event" />
+
+          </LN0>
+
+          <LN lnClass="LPHD" lnType="LPHD_1" inst="1" prefix=""    desc="Physical device information" />
+          <LN lnClass="LTIM" lnType="LTIM_1" inst="1" prefix=""    desc="Time management" />
+          <LN lnClass="ISTX" lnType="ISTX_1" inst="1" prefix=""    desc="Logical Node Transmitter" />
+          <LN lnClass="ISRX" lnType="ISRX_1" inst="1" prefix=""    desc="Logical Node Receiver" />
+          <LN lnClass="IDOR" lnType="IDOR_1" inst="1" prefix="CAB" desc="Cabinet door control" />
+          <LN lnClass="LTMS" lnType="LTMS_1" inst="1" prefix=""    desc="Time master supervision" />
+
+        </LDevice>
+
+        <LDevice inst="TX01">
+
+          <LN0 lnClass="LLN0" lnType="LLN0_TX" inst="">
+
+            <!-- TODO: сделать ссылку GrRef функциональной, чтобы через нее можно было задавать root LD. Сейчас - read only -->
+            <DOI name="GrRef"><DAI name="setSrcRef"><Val>SYS</Val></DAI></DOI>
+
+          </LN0>
+
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="1"  prefix="TX" desc="Tx Teleprot. comm. interface 1" />
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="2"  prefix="TX" desc="Tx Teleprot. comm. interface 2" />
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="3"  prefix="TX" desc="Tx Teleprot. comm. interface 3" />
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="4"  prefix="TX" desc="Tx Teleprot. comm. interface 4" />
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="5"  prefix="TX" desc="Tx Teleprot. comm. interface 5" />
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="6"  prefix="TX" desc="Tx Teleprot. comm. interface 6" />
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="7"  prefix="TX" desc="Tx Teleprot. comm. interface 7" />
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="8"  prefix="TX" desc="Tx Teleprot. comm. interface 8" />
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="9"  prefix="TX" desc="Tx Teleprot. comm. interface 9" />
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="10" prefix="TX" desc="Tx Teleprot. comm. interface 10" />
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="11" prefix="TX" desc="Tx Teleprot. comm. interface 11" />
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="12" prefix="TX" desc="Tx Teleprot. comm. interface 12" />
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="13" prefix="TX" desc="Tx Teleprot. comm. interface 13" />
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="14" prefix="TX" desc="Tx Teleprot. comm. interface 14" />
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="15" prefix="TX" desc="Tx Teleprot. comm. interface 15" />
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="16" prefix="TX" desc="Tx Teleprot. comm. interface 16" />
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="17" prefix="TX" desc="Tx Teleprot. comm. interface 17" />
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="18" prefix="TX" desc="Tx Teleprot. comm. interface 18" />
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="19" prefix="TX" desc="Tx Teleprot. comm. interface 19" />
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="20" prefix="TX" desc="Tx Teleprot. comm. interface 20" />
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="21" prefix="TX" desc="Tx Teleprot. comm. interface 21" />
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="22" prefix="TX" desc="Tx Teleprot. comm. interface 22" />
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="23" prefix="TX" desc="Tx Teleprot. comm. interface 23" />
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="24" prefix="TX" desc="Tx Teleprot. comm. interface 24" />
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="25" prefix="TX" desc="Tx Teleprot. comm. interface 25" />
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="26" prefix="TX" desc="Tx Teleprot. comm. interface 26" />
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="27" prefix="TX" desc="Tx Teleprot. comm. interface 27" />
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="28" prefix="TX" desc="Tx Teleprot. comm. interface 28" />
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="29" prefix="TX" desc="Tx Teleprot. comm. interface 29" />
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="30" prefix="TX" desc="Tx Teleprot. comm. interface 30" />
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="31" prefix="TX" desc="Tx Teleprot. comm. interface 31" />
+          <LN lnType="RTPC_TX_0" lnClass="RTPC" inst="32" prefix="TX" desc="Tx Teleprot. comm. interface 32" />
+
+          <LN lnType="LGOS_1" lnClass="LGOS" inst="1"  prefix="" desc="GOOSE subscription 1" />
+          <LN lnType="LGOS_1" lnClass="LGOS" inst="2"  prefix="" desc="GOOSE subscription 2" />
+          <LN lnType="LGOS_1" lnClass="LGOS" inst="3"  prefix="" desc="GOOSE subscription 3" />
+          <LN lnType="LGOS_1" lnClass="LGOS" inst="4"  prefix="" desc="GOOSE subscription 4" />
+          <LN lnType="LGOS_1" lnClass="LGOS" inst="5"  prefix="" desc="GOOSE subscription 5" />
+          <LN lnType="LGOS_1" lnClass="LGOS" inst="6"  prefix="" desc="GOOSE subscription 6" />
+          <LN lnType="LGOS_1" lnClass="LGOS" inst="7"  prefix="" desc="GOOSE subscription 7" />
+          <LN lnType="LGOS_1" lnClass="LGOS" inst="8"  prefix="" desc="GOOSE subscription 8" />
+          <LN lnType="LGOS_1" lnClass="LGOS" inst="9"  prefix="" desc="GOOSE subscription 9" />
+          <LN lnType="LGOS_1" lnClass="LGOS" inst="10" prefix="" desc="GOOSE subscription 10" />
+          <LN lnType="LGOS_1" lnClass="LGOS" inst="11" prefix="" desc="GOOSE subscription 11" />
+          <LN lnType="LGOS_1" lnClass="LGOS" inst="12" prefix="" desc="GOOSE subscription 12" />
+
+        </LDevice>
+
+        <LDevice inst="RX01">
+
+          <LN0 lnClass="LLN0" lnType="LLN0_RX" inst="">
+
+            <!-- TODO: сделать ссылку GrRef функциональной, чтобы через нее можно было задавать root LD. Сейчас - read only -->
+            <DOI name="GrRef"><DAI name="setSrcRef"><Val>SYS</Val></DAI></DOI>
+
+            <DataSet name="GooseTxCmd" desc="RXRTPCNN.Cmd">
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="1"  prefix="RX" fc="ST" doName="Cmd" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="2"  prefix="RX" fc="ST" doName="Cmd" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="3"  prefix="RX" fc="ST" doName="Cmd" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="4"  prefix="RX" fc="ST" doName="Cmd" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="5"  prefix="RX" fc="ST" doName="Cmd" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="6"  prefix="RX" fc="ST" doName="Cmd" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="7"  prefix="RX" fc="ST" doName="Cmd" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="8"  prefix="RX" fc="ST" doName="Cmd" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="9"  prefix="RX" fc="ST" doName="Cmd" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="10" prefix="RX" fc="ST" doName="Cmd" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="11" prefix="RX" fc="ST" doName="Cmd" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="12" prefix="RX" fc="ST" doName="Cmd" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="13" prefix="RX" fc="ST" doName="Cmd" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="14" prefix="RX" fc="ST" doName="Cmd" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="15" prefix="RX" fc="ST" doName="Cmd" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="16" prefix="RX" fc="ST" doName="Cmd" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="17" prefix="RX" fc="ST" doName="Cmd" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="18" prefix="RX" fc="ST" doName="Cmd" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="19" prefix="RX" fc="ST" doName="Cmd" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="20" prefix="RX" fc="ST" doName="Cmd" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="21" prefix="RX" fc="ST" doName="Cmd" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="22" prefix="RX" fc="ST" doName="Cmd" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="23" prefix="RX" fc="ST" doName="Cmd" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="24" prefix="RX" fc="ST" doName="Cmd" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="25" prefix="RX" fc="ST" doName="Cmd" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="26" prefix="RX" fc="ST" doName="Cmd" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="27" prefix="RX" fc="ST" doName="Cmd" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="28" prefix="RX" fc="ST" doName="Cmd" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="29" prefix="RX" fc="ST" doName="Cmd" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="30" prefix="RX" fc="ST" doName="Cmd" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="31" prefix="RX" fc="ST" doName="Cmd" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="32" prefix="RX" fc="ST" doName="Cmd" />
+            </DataSet>
+
+            <DataSet name="GooseTxCmdDir" desc="RXRTPC1.CmdDirK">
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="1" prefix="RX" fc="ST" doName="CmdDir1" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="1" prefix="RX" fc="ST" doName="CmdDir2" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="1" prefix="RX" fc="ST" doName="CmdDir3" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="1" prefix="RX" fc="ST" doName="CmdDir4" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="1" prefix="RX" fc="ST" doName="CmdDir5" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="1" prefix="RX" fc="ST" doName="CmdDir6" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="1" prefix="RX" fc="ST" doName="CmdDir7" />
+              <FCDA ldInst="RX01" lnClass="RTPC" lnInst="1" prefix="RX" fc="ST" doName="CmdDir8" />
+            </DataSet>
+
+            <GSEControl appID="GooseTxCmd"    name="gcbGooseTxCmd"    type="GOOSE" datSet="GooseTxCmd"    confRev="2" />
+            <GSEControl appID="GooseTxCmdDir" name="gcbGooseTxCmdDir" type="GOOSE" datSet="GooseTxCmdDir" confRev="2" />
+
+          </LN0>
+
+          <LN lnType="RTPC_RX_8" lnClass="RTPC" inst="1"  prefix="RX" desc="Rx Teleprot. comm. interface 1" />
+          <LN lnType="RTPC_RX_0" lnClass="RTPC" inst="2"  prefix="RX" desc="Rx Teleprot. comm. interface 2" />
+          <LN lnType="RTPC_RX_0" lnClass="RTPC" inst="3"  prefix="RX" desc="Rx Teleprot. comm. interface 3" />
+          <LN lnType="RTPC_RX_0" lnClass="RTPC" inst="4"  prefix="RX" desc="Rx Teleprot. comm. interface 4" />
+          <LN lnType="RTPC_RX_0" lnClass="RTPC" inst="5"  prefix="RX" desc="Rx Teleprot. comm. interface 5" />
+          <LN lnType="RTPC_RX_0" lnClass="RTPC" inst="6"  prefix="RX" desc="Rx Teleprot. comm. interface 6" />
+          <LN lnType="RTPC_RX_0" lnClass="RTPC" inst="7"  prefix="RX" desc="Rx Teleprot. comm. interface 7" />
+          <LN lnType="RTPC_RX_0" lnClass="RTPC" inst="8"  prefix="RX" desc="Rx Teleprot. comm. interface 8" />
+          <LN lnType="RTPC_RX_0" lnClass="RTPC" inst="9"  prefix="RX" desc="Rx Teleprot. comm. interface 9" />
+          <LN lnType="RTPC_RX_0" lnClass="RTPC" inst="10" prefix="RX" desc="Rx Teleprot. comm. interface 10" />
+          <LN lnType="RTPC_RX_0" lnClass="RTPC" inst="11" prefix="RX" desc="Rx Teleprot. comm. interface 11" />
+          <LN lnType="RTPC_RX_0" lnClass="RTPC" inst="12" prefix="RX" desc="Rx Teleprot. comm. interface 12" />
+          <LN lnType="RTPC_RX_0" lnClass="RTPC" inst="13" prefix="RX" desc="Rx Teleprot. comm. interface 13" />
+          <LN lnType="RTPC_RX_0" lnClass="RTPC" inst="14" prefix="RX" desc="Rx Teleprot. comm. interface 14" />
+          <LN lnType="RTPC_RX_0" lnClass="RTPC" inst="15" prefix="RX" desc="Rx Teleprot. comm. interface 15" />
+          <LN lnType="RTPC_RX_0" lnClass="RTPC" inst="16" prefix="RX" desc="Rx Teleprot. comm. interface 16" />
+          <LN lnType="RTPC_RX_0" lnClass="RTPC" inst="17" prefix="RX" desc="Rx Teleprot. comm. interface 17" />
+          <LN lnType="RTPC_RX_0" lnClass="RTPC" inst="18" prefix="RX" desc="Rx Teleprot. comm. interface 18" />
+          <LN lnType="RTPC_RX_0" lnClass="RTPC" inst="19" prefix="RX" desc="Rx Teleprot. comm. interface 19" />
+          <LN lnType="RTPC_RX_0" lnClass="RTPC" inst="20" prefix="RX" desc="Rx Teleprot. comm. interface 20" />
+          <LN lnType="RTPC_RX_0" lnClass="RTPC" inst="21" prefix="RX" desc="Rx Teleprot. comm. interface 21" />
+          <LN lnType="RTPC_RX_0" lnClass="RTPC" inst="22" prefix="RX" desc="Rx Teleprot. comm. interface 22" />
+          <LN lnType="RTPC_RX_0" lnClass="RTPC" inst="23" prefix="RX" desc="Rx Teleprot. comm. interface 23" />
+          <LN lnType="RTPC_RX_0" lnClass="RTPC" inst="24" prefix="RX" desc="Rx Teleprot. comm. interface 24" />
+          <LN lnType="RTPC_RX_0" lnClass="RTPC" inst="25" prefix="RX" desc="Rx Teleprot. comm. interface 25" />
+          <LN lnType="RTPC_RX_0" lnClass="RTPC" inst="26" prefix="RX" desc="Rx Teleprot. comm. interface 26" />
+          <LN lnType="RTPC_RX_0" lnClass="RTPC" inst="27" prefix="RX" desc="Rx Teleprot. comm. interface 27" />
+          <LN lnType="RTPC_RX_0" lnClass="RTPC" inst="28" prefix="RX" desc="Rx Teleprot. comm. interface 28" />
+          <LN lnType="RTPC_RX_0" lnClass="RTPC" inst="29" prefix="RX" desc="Rx Teleprot. comm. interface 29" />
+          <LN lnType="RTPC_RX_0" lnClass="RTPC" inst="30" prefix="RX" desc="Rx Teleprot. comm. interface 30" />
+          <LN lnType="RTPC_RX_0" lnClass="RTPC" inst="31" prefix="RX" desc="Rx Teleprot. comm. interface 31" />
+          <LN lnType="RTPC_RX_0" lnClass="RTPC" inst="32" prefix="RX" desc="Rx Teleprot. comm. interface 32" />
+
+        </LDevice>
+
+      </Server>
+    </AccessPoint>
+  </IED>
+  <DataTypeTemplates>
+
+    <LNodeType id="LLN0_SYS" lnClass="LLN0">
+      <!-- Status information -->
+      <DO name="Beh"    type="ENS_Beh_On_1"                 tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Behaviour" />
+      <DO name="Health" type="ENS_Health_1"                 tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Health" />
+      <DO name="LocKey" type="SPS_1"                        tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Положение ключа SAC2 «Режим управления»"/>
+      <!-- Controls -->
+      <DO name="Mod"    type="ENC_Mod_On_DirNrm_1"          tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Mode" />
+      <DO name="LEDRs"  type="SPC_1"                        tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Сбросить сигнализацию шкафа"/>
+    </LNodeType>
+
+    <LNodeType id="LLN0_TX" lnClass="LLN0">
+      <!-- Status information -->
+      <DO name="Beh"    type="ENS_Beh_On_1"                 tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Behaviour" />
+      <DO name="Health" type="ENS_Health_1"                 tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Health" />
+      <!-- Controls -->
+      <DO name="Mod"    type="ENC_Mod_On_DirNrm_1"          tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Mode" />
+      <!-- Settings -->
+      <DO name="GrRef"  type="ORG_1" />
+    </LNodeType>
+
+    <LNodeType id="LLN0_RX" lnClass="LLN0">
+      <!-- Status information -->
+      <DO name="Beh"    type="ENS_Beh_On_1"                 tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Behaviour" />
+      <DO name="Health" type="ENS_Health_1"                 tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Health" />
+      <!-- Controls -->
+      <DO name="Mod"    type="ENC_Mod_On_DirNrm_1"          tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Mode" />
+      <!-- Settings -->
+      <DO name="GrRef"  type="ORG_1" />
+    </LNodeType>
+
+    <LNodeType id="LPHD_1" lnClass="LPHD">
+      <!-- Status information -->
+      <DO name="PhyNam"      type="DPL_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Фирменная табличка IED" />
+      <DO name="PhyHealth"   type="ENS_Health_1"            tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Состояние аппаратной части УПАСК" />
+      <!-- Status information (custom) -->
+      <DO name="Beh"         type="ENS_Beh_On_1"            tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Behaviour" /> <!-- NOTE: LPHD.Beh не по стандандарту, но не запрещено. Всегда ON -->
+      <DO name="PwrUp"       type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Начало работы после подачи питания или перезагрузки"/>
+      <DO name="ConnInd"     type="INS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Количество активных соединений" />
+      <!-- Controls -->
+      <DO name="Sim"         type="SPC_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Режим «Моделирование» (принимаются GOOSE только с признаком 'test')" />
+    </LNodeType>
+
+    <LNodeType id="LTIM_1" lnClass="LTIM">
+      <!-- Status information -->
+      <DO name="TmDT"        type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Летнее время"/>
+      <DO name="Beh"         type="ENS_Beh_On_1"            tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Behaviour"/>
+      <DO name="Health"      type="ENS_Health_1"            tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Health"/>
+      <!-- Controls -->
+      <DO name="Mod"         type="ENC_Mod_On_DirNrm_1"     tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Mode" />
+      <!-- Settings -->
+      <DO name="TmOfsTmm"    type="ING_SP_TmOfsTmm"         tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Смещение местного времени относительно UTC" />
+      <DO name="TmUseDT"     type="SPG_SP_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Использовать летнее время" />
+    </LNodeType>
+
+    <LNodeType id="ISTX_1" lnClass="ISTX">
+      <!-- Status information -->
+      <DO name="CmdTx01"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 1" />
+      <DO name="CmdTx02"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 2" />
+      <DO name="CmdTx03"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 3" />
+      <DO name="CmdTx04"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 4" />
+      <DO name="CmdTx05"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 5" />
+      <DO name="CmdTx06"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 6" />
+      <DO name="CmdTx07"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 7" />
+      <DO name="CmdTx08"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 8" />
+      <DO name="CmdTx09"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 9" />
+      <DO name="CmdTx10"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 10" />
+      <DO name="CmdTx11"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 11" />
+      <DO name="CmdTx12"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 12" />
+      <DO name="CmdTx13"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 13" />
+      <DO name="CmdTx14"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 14" />
+      <DO name="CmdTx15"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 15" />
+      <DO name="CmdTx16"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 16" />
+      <DO name="CmdTx17"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 17" />
+      <DO name="CmdTx18"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 18" />
+      <DO name="CmdTx19"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 19" />
+      <DO name="CmdTx20"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 20" />
+      <DO name="CmdTx21"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 21" />
+      <DO name="CmdTx22"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 22" />
+      <DO name="CmdTx23"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 23" />
+      <DO name="CmdTx24"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 24" />
+      <DO name="CmdTx25"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 25" />
+      <DO name="CmdTx26"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 26" />
+      <DO name="CmdTx27"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 27" />
+      <DO name="CmdTx28"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 28" />
+      <DO name="CmdTx29"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 29" />
+      <DO name="CmdTx30"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 30" />
+      <DO name="CmdTx31"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 31" />
+      <DO name="CmdTx32"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Передача команды 32" />
+      <DO name="Beh"        type="ENS_Beh_On_1"             tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Behaviour"/>
+      <DO name="Health"     type="ENS_Health_1"             tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Health"/>
+      <!-- Controls -->
+      <DO name="Mod"        type="ENC_Mod_On_DirNrm_1"      tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Mode" />
+    </LNodeType>
+
+    <LNodeType id="ISRX_1" lnClass="ISRX">
+      <!-- Status information -->
+      <DO name="CmdRx01"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 1" />
+      <DO name="CmdRx02"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 2" />
+      <DO name="CmdRx03"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 3" />
+      <DO name="CmdRx04"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 4" />
+      <DO name="CmdRx05"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 5" />
+      <DO name="CmdRx06"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 6" />
+      <DO name="CmdRx07"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 7" />
+      <DO name="CmdRx08"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 8" />
+      <DO name="CmdRx09"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 9" />
+      <DO name="CmdRx10"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 10" />
+      <DO name="CmdRx11"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 11" />
+      <DO name="CmdRx12"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 12" />
+      <DO name="CmdRx13"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 13" />
+      <DO name="CmdRx14"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 14" />
+      <DO name="CmdRx15"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 15" />
+      <DO name="CmdRx16"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 16" />
+      <DO name="CmdRx17"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 17" />
+      <DO name="CmdRx18"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 18" />
+      <DO name="CmdRx19"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 19" />
+      <DO name="CmdRx20"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 20" />
+      <DO name="CmdRx21"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 21" />
+      <DO name="CmdRx22"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 22" />
+      <DO name="CmdRx23"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 23" />
+      <DO name="CmdRx24"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 24" />
+      <DO name="CmdRx25"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 25" />
+      <DO name="CmdRx26"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 26" />
+      <DO name="CmdRx27"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 27" />
+      <DO name="CmdRx28"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 28" />
+      <DO name="CmdRx29"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 29" />
+      <DO name="CmdRx30"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 30" />
+      <DO name="CmdRx31"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 31" />
+      <DO name="CmdRx32"     type="SPS_1"                   tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Прием команды 32" />
+      <DO name="Beh"         type="ENS_Beh_On_1"            tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Behaviour"/>
+      <DO name="Health"      type="ENS_Health_1"            tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Health"/>
+      <!-- Controls -->
+      <DO name="Mod"         type="ENC_Mod_On_DirNrm_Loc_1" tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Mode" />
+    </LNodeType>
+
+    <LNodeType id="IDOR_1" lnClass="IDOR">
+      <!-- Status information -->
+      <DO name="DOpn"   type="SPS_1"                        tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Дверь шкафа открыта" />
+      <DO name="Beh"    type="ENS_Beh_On_1"                 tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Behaviour" />
+      <DO name="Health" type="ENS_Health_1"                 tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Health" />
+      <!-- Controls -->
+      <DO name="Mod"    type="ENC_Mod_On_DirNrm_1"          tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Mode" />
+    </LNodeType>
+
+    <LNodeType id="LTMS_1" iedType="" lnClass="LTMS">
+      <!-- Status information -->
+      <DO name="TmSrc"        type="VSS_1"                  tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Current time source identity" />
+      <DO name="TmSrcTyp"     type="ENS_ClkSrc_1"           tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Type of the clock source" />
+      <DO name="TmSyn"        type="ENS_ClkSyn_1"           tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Actual time synchronisation applied" />
+      <DO name="Beh"          type="ENS_Beh_On_1"           tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Behaviour" />
+      <DO name="Health"       type="ENS_Health_1"           tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Health" />
+      <!-- Status information (custom) -->
+      <DO name="TmSrcTypName" type="VSS_1"                  tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Current time source name" />
+      <DO name="TmSynName"    type="VSS_1"                  tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Literal of actual time synchronisation applied" />
+      <!-- Controls -->
+      <DO name="Mod"          type="ENC_Mod_On_DirNrm_1"    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Mode" />
+    </LNodeType>
+
+    <LNodeType id="RTPC_TX_0" lnClass="RTPC">
+      <!-- Status information -->
+      <DO name="Cmd"        type="SPS_2"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда+источник команды" />
+      <DO name="Beh"        type="ENS_Beh_On_1"             tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Behaviour" />
+      <DO name="Health"     type="ENS_Health_1"             tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Health" />
+      <!-- Controls -->
+      <DO name="Mod"        type="ENC_Mod_On_DirNrm_1"      tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Mode" />
+    </LNodeType>
+
+    <LNodeType id="RTPC_RX_0" lnClass="RTPC">
+      <!-- Status information -->
+      <DO name="Cmd"        type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда" />
+      <DO name="Beh"        type="ENS_Beh_On_1"             tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Behaviour" />
+      <DO name="Health"     type="ENS_Health_1"             tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Health" />
+      <!-- Controls -->
+      <DO name="Mod"        type="ENC_Mod_On_DirNrm_Loc_1"  tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Mode" />
+    </LNodeType>
+
+    <LNodeType id="RTPC_RX_1" lnClass="RTPC">
+      <!-- Status information -->
+      <DO name="Cmd"        type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда" />
+      <DO name="CmdDir1"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 1" />
+      <DO name="Beh"        type="ENS_Beh_On_1"             tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Behaviour" />
+      <DO name="Health"     type="ENS_Health_1"             tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Health" />
+      <!-- Controls -->
+      <DO name="CmdDirMod1" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.1"/>
+      <DO name="Mod"        type="ENC_Mod_On_DirNrm_Loc_1"  tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Mode" />
+    </LNodeType>
+
+    <LNodeType id="RTPC_RX_2" lnClass="RTPC">
+      <!-- Status information -->
+      <DO name="Cmd"        type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда" />
+      <DO name="CmdDir1"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 1" />
+      <DO name="CmdDir2"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 2" />
+      <DO name="Beh"        type="ENS_Beh_On_1"             tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Behaviour" />
+      <DO name="Health"     type="ENS_Health_1"             tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Health" />
+      <!-- Controls -->
+      <DO name="CmdDirMod1" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.1"/>
+      <DO name="CmdDirMod2" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.2"/>
+      <DO name="Mod"        type="ENC_Mod_On_DirNrm_Loc_1"  tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Mode" />
+    </LNodeType>
+
+    <LNodeType id="RTPC_RX_3" lnClass="RTPC">
+      <!-- Status information -->
+      <DO name="Cmd"        type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда" />
+      <DO name="CmdDir1"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 1" />
+      <DO name="CmdDir2"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 2" />
+      <DO name="CmdDir3"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 3" />
+      <DO name="Beh"        type="ENS_Beh_On_1"             tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Behaviour" />
+      <DO name="Health"     type="ENS_Health_1"             tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Health" />
+      <!-- Controls -->
+      <DO name="CmdDirMod1" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.1"/>
+      <DO name="CmdDirMod2" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.2"/>
+      <DO name="CmdDirMod3" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.3"/>
+      <DO name="Mod"        type="ENC_Mod_On_DirNrm_Loc_1"  tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Mode" />
+    </LNodeType>
+
+    <LNodeType id="RTPC_RX_4" lnClass="RTPC">
+      <!-- Status information -->
+      <DO name="Cmd"        type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда" />
+      <DO name="CmdDir1"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 1" />
+      <DO name="CmdDir2"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 2" />
+      <DO name="CmdDir3"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 3" />
+      <DO name="CmdDir4"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 4" />
+      <DO name="Beh"        type="ENS_Beh_On_1"             tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Behaviour" />
+      <DO name="Health"     type="ENS_Health_1"             tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Health" />
+      <!-- Controls -->
+      <DO name="CmdDirMod1" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.1"/>
+      <DO name="CmdDirMod2" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.2"/>
+      <DO name="CmdDirMod3" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.3"/>
+      <DO name="CmdDirMod4" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.4"/>
+      <DO name="Mod"        type="ENC_Mod_On_DirNrm_Loc_1"  tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Mode" />
+    </LNodeType>
+
+    <LNodeType id="RTPC_RX_5" lnClass="RTPC">
+      <!-- Status information -->
+      <DO name="Cmd"        type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда" />
+      <DO name="CmdDir1"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 1" />
+      <DO name="CmdDir2"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 2" />
+      <DO name="CmdDir3"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 3" />
+      <DO name="CmdDir4"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 4" />
+      <DO name="CmdDir5"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 5" />
+      <DO name="Beh"        type="ENS_Beh_On_1"             tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Behaviour" />
+      <DO name="Health"     type="ENS_Health_1"             tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Health" />
+      <!-- Controls -->
+      <DO name="CmdDirMod1" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.1"/>
+      <DO name="CmdDirMod2" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.2"/>
+      <DO name="CmdDirMod3" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.3"/>
+      <DO name="CmdDirMod4" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.4"/>
+      <DO name="CmdDirMod5" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.5"/>
+      <DO name="Mod"        type="ENC_Mod_On_DirNrm_Loc_1"  tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Mode" />
+    </LNodeType>
+
+    <LNodeType id="RTPC_RX_6" lnClass="RTPC">
+      <!-- Status information -->
+      <DO name="Cmd"        type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда" />
+      <DO name="CmdDir1"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 1" />
+      <DO name="CmdDir2"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 2" />
+      <DO name="CmdDir3"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 3" />
+      <DO name="CmdDir4"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 4" />
+      <DO name="CmdDir5"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 5" />
+      <DO name="CmdDir6"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 6" />
+      <DO name="Beh"        type="ENS_Beh_On_1"             tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Behaviour" />
+      <DO name="Health"     type="ENS_Health_1"             tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Health" />
+      <!-- Controls -->
+      <DO name="CmdDirMod1" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.1"/>
+      <DO name="CmdDirMod2" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.2"/>
+      <DO name="CmdDirMod3" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.3"/>
+      <DO name="CmdDirMod4" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.4"/>
+      <DO name="CmdDirMod5" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.5"/>
+      <DO name="CmdDirMod6" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.6"/>
+      <DO name="Mod"        type="ENC_Mod_On_DirNrm_Loc_1"  tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Mode" />
+    </LNodeType>
+
+    <LNodeType id="RTPC_RX_7" lnClass="RTPC">
+      <!-- Status information -->
+      <DO name="Cmd"        type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда" />
+      <DO name="CmdDir1"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 1" />
+      <DO name="CmdDir2"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 2" />
+      <DO name="CmdDir3"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 3" />
+      <DO name="CmdDir4"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 4" />
+      <DO name="CmdDir5"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 5" />
+      <DO name="CmdDir6"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 6" />
+      <DO name="CmdDir7"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 7" />
+      <DO name="Beh"        type="ENS_Beh_On_1"             tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Behaviour" />
+      <DO name="Health"     type="ENS_Health_1"             tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Health" />
+      <!-- Controls -->
+      <DO name="CmdDirMod1" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.1"/>
+      <DO name="CmdDirMod2" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.2"/>
+      <DO name="CmdDirMod3" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.3"/>
+      <DO name="CmdDirMod4" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.4"/>
+      <DO name="CmdDirMod5" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.5"/>
+      <DO name="CmdDirMod6" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.6"/>
+      <DO name="CmdDirMod7" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.7"/>
+      <DO name="Mod"        type="ENC_Mod_On_DirNrm_Loc_1"  tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Mode" />
+    </LNodeType>
+
+    <LNodeType id="RTPC_RX_8" lnClass="RTPC">
+      <!-- Status information -->
+      <DO name="Cmd"        type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда" />
+      <DO name="CmdDir1"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 1" />
+      <DO name="CmdDir2"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 2" />
+      <DO name="CmdDir3"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 3" />
+      <DO name="CmdDir4"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 4" />
+      <DO name="CmdDir5"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 5" />
+      <DO name="CmdDir6"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 6" />
+      <DO name="CmdDir7"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 7" />
+      <DO name="CmdDir8"    type="SPS_1"                    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Команда. Направление 8" />
+      <DO name="Beh"        type="ENS_Beh_On_1"             tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Behaviour" />
+      <DO name="Health"     type="ENS_Health_1"             tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Health" />
+      <!-- Controls -->
+      <DO name="CmdDirMod1" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.1"/>
+      <DO name="CmdDirMod2" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.2"/>
+      <DO name="CmdDirMod3" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.3"/>
+      <DO name="CmdDirMod4" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.4"/>
+      <DO name="CmdDirMod5" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.5"/>
+      <DO name="CmdDirMod6" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.6"/>
+      <DO name="CmdDirMod7" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.7"/>
+      <DO name="CmdDirMod8" type="SPC_Loc_1"                tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Ключ SANN.8"/>
+      <DO name="Mod"        type="ENC_Mod_On_DirNrm_Loc_1"  tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Mode" />
+    </LNodeType>
+
+    <LNodeType id="LGOS_1" lnClass="LGOS">
+      <!-- Status information -->
+      <DO name="LastStNum"    type="INS_1" />
+      <DO name="NdsCom"       type="SPS_1" />
+      <DO name="St"           type="SPS_1"                  tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Состояние приёма GOOSE"/>
+      <DO name="SimSt"        type="SPS_1" />
+      <DO name="RxConfRevNum" type="INS_1" />
+      <DO name="Beh"          type="ENS_Beh_On_1"           tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Behaviour" />
+      <DO name="Health"       type="ENS_Health_1"           tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Health" />
+      <!-- Status information (custom) -->
+      <DO name="LastSqNum"    type="INS_1" />
+      <DO name="TimeToLive"   type="INS_1" />
+      <!-- Controls -->
+      <DO name="Mod"          type="ENC_Mod_On_DirNrm_1"    tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="LN Mode" />
+      <!-- Settings -->
+      <DO name="GoCBRef"      type="ORG_Star_1"             tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="Object reference of subscribed GOOSE control block"/>
+      <DO name="appID"        type="ING_SP_APPID"           tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="GOOSE appID"/>
+      <!--
+        NOTE:
+        более правильно - определять MAC через Octet6, но Status settings CDC,
+        в котором использовался бы этот тип данных в DA setVal, нет;
+        придумывать свой нет желания. VSG - наиболее подходящий.
+        MAC адрес может быт задан в любом из следующих форматов:
+        ff:ff:ff:ff:ff:ff
+        FF:FF:FF:FF:FF:FF
+        0xff:0xff:0xff:0xff:0xff:0xff
+        0xFF:0xFF:0xFF:0xFF:0xFF:0xFF
+        0Xff:0Xff:0Xff:0Xff:0Xff:0Xff
+        0XFF:0XFF:0XFF:0XFF:0XFF:0XFF
+        Если задан в неверном формате (д.б. 5 разделяющих символов ':'), то игнорируется
+        Т.е., чтобы игнорировать настроку dstMac, в клиенте можно записать любую невалидную строку
+      -->
+      <DO name="dstMac"   type="VSG_SP_Star_1"              tags="I II III HFT HFR HFTR FIBT FIBR FIBTR MUXT MUXR MUXTR" desc="destination MAC"/>
+    </LNodeType>
+
+    <!-- Data Objects Type -->
+    <DOType id="DPL_1" cdc="DPL">
+      <DA name="vendor" bType="VisString255" fc="DC" valKind="RO" > <Val>ProsoftSystems</Val> </DA>
+    </DOType>
+    <DOType id="ENS_ClkSrc_1" cdc="ENS">
+      <DA name="stVal" bType="Enum"      fc="ST" dchg="true" type="ClockSourceKind" />
+      <DA name="q"     bType="Quality"   fc="ST" qchg="true" />
+      <DA name="t"     bType="Timestamp" fc="ST" />
+    </DOType>
+    <DOType id="ENS_ClkSyn_1" cdc="ENS">
+      <DA name="stVal" bType="Enum"      fc="ST" dchg="true" type="ClockSyncKind" />
+      <DA name="q"     bType="Quality"   fc="ST" qchg="true" />
+      <DA name="t"     bType="Timestamp" fc="ST" />
+    </DOType>
+    <DOType id="ENS_Beh_On_1" cdc="ENS">
+      <DA name="stVal" bType="Enum"      fc="ST" dchg="true" type="BehaviourModeKind"> <Val>on</Val> </DA>
+      <DA name="q"     bType="Quality"   fc="ST" qchg="true" />
+      <DA name="t"     bType="Timestamp" fc="ST" />
+    </DOType>
+    <DOType id="ENS_Health_1" cdc="ENS">
+      <DA name="stVal" bType="Enum"      fc="ST" dchg="true" type="HealthKind"> <Val>Ok</Val> </DA>
+      <DA name="q"     bType="Quality"   fc="ST" qchg="true" />
+      <DA name="t"     bType="Timestamp" fc="ST" />
+    </DOType>
+    <DOType id="SPS_1" cdc="SPS">
+      <DA name="stVal" bType="BOOLEAN"   fc="ST" dchg="true" />
+      <DA name="q"     bType="Quality"   fc="ST" qchg="true" />
+      <DA name="t"     bType="Timestamp" fc="ST" />
+    </DOType>
+    <DOType id="SPS_2" cdc="SPS">
+      <DA name="stVal" bType="BOOLEAN"   fc="ST" dchg="true" />
+      <DA name="gSrc"  bType="INT32U"    fc="ST" dchg="true" desc="GOOSE source flags" />
+      <DA name="q"     bType="Quality"   fc="ST" qchg="true" />
+      <DA name="t"     bType="Timestamp" fc="ST" />
+    </DOType>
+    <DOType id="INS_1" cdc="INS">
+      <DA name="stVal" bType="INT32"     fc="ST" dchg="true" />
+      <DA name="q"     bType="Quality"   fc="ST" qchg="true" />
+      <DA name="t"     bType="Timestamp" fc="ST" />
+    </DOType>
+    <DOType id="SEC_1" cdc="SEC">
+      <DA name="cnt" bType="INT32U"    fc="ST" dchg="true" />
+      <DA name="sev" bType="Enum"      fc="ST"             type="SeverityKind" />
+      <DA name="t"   bType="Timestamp" fc="ST" />
+    </DOType>
+    <DOType id="ENC_Mod_On_DirNrm_1" cdc="ENC">
+      <DA name="stVal"    bType="Enum"      fc="ST" dchg="true" type="BehaviourModeKind"> <Val>on</Val> </DA>
+      <DA name="q"        bType="Quality"   fc="ST" qchg="true" />
+      <DA name="t"        bType="Timestamp" fc="ST" />
+      <DA name="ctlModel" bType="Enum"      fc="CF" type="CtlModelKind"> <Val>direct-with-normal-security</Val> </DA>
+      <DA name="Oper"     bType="Struct"    fc="CO" type="ENCOperate_1" />
+      <DA name="Ext"      bType="Struct"    fc="EX" type="Ext_ENC_Mod_On_1" />
+    </DOType>
+    <DOType id="ENC_Mod_On_DirNrm_Loc_1" cdc="ENC">
+      <DA name="stVal"    bType="Enum"      fc="ST" dchg="true" type="BehaviourModeKind"> <Val>on</Val> </DA>
+      <DA name="q"        bType="Quality"   fc="ST" qchg="true" />
+      <DA name="t"        bType="Timestamp" fc="ST" />
+      <DA name="ctlModel" bType="Enum"      fc="CF" type="CtlModelKind"> <Val>direct-with-normal-security</Val> </DA>
+      <DA name="Oper"     bType="Struct"    fc="CO" type="ENCOperate_1" />
+      <DA name="Ext"      bType="Struct"    fc="EX" type="Ext_ENC_Mod_On_Loc_1" />
+    </DOType>
+    <DOType id="SPC_1" cdc="SPC">
+      <DA name="stVal"    bType="BOOLEAN"   fc="ST" dchg="true" > <Val>false</Val> </DA>
+      <DA name="q"        bType="Quality"   fc="ST" qchg="true" />
+      <DA name="t"        bType="Timestamp" fc="ST" />
+      <DA name="ctlModel" bType="Enum"      fc="CF" type="CtlModelKind"> <Val>direct-with-normal-security</Val> </DA>
+      <DA name="Oper"     bType="Struct"    fc="CO" type="SPCOperate_1" />
+      <DA name="Ext"      bType="Struct"    fc="EX" type="Ext_SPC_1" />
+    </DOType>
+    <DOType id="SPC_Loc_1" cdc="SPC">
+      <DA name="stVal"    bType="BOOLEAN"   fc="ST" dchg="true" > <Val>false</Val> </DA>
+      <DA name="q"        bType="Quality"   fc="ST" qchg="true" />
+      <DA name="t"        bType="Timestamp" fc="ST" />
+      <DA name="ctlModel" bType="Enum"      fc="CF" type="CtlModelKind"> <Val>direct-with-normal-security</Val> </DA>
+      <DA name="Oper"     bType="Struct"    fc="CO" type="SPCOperate_1" />
+      <DA name="Ext"      bType="Struct"    fc="EX" type="Ext_SPC_Loc_1" />
+    </DOType>
+    <DOType id="INC_1" cdc="INC">
+      <DA name="stVal"    bType="INT32"     fc="ST" dchg="true" > <Val>0</Val> </DA>
+      <DA name="q"        bType="Quality"   fc="ST" qchg="true" />
+      <DA name="t"        bType="Timestamp" fc="ST" />
+      <DA name="ctlModel" bType="Enum"      fc="CF" type="CtlModelKind"> <Val>direct-with-normal-security</Val> </DA>
+      <DA name="Oper"     bType="Struct"    fc="CO" type="INCOperate_1" />
+      <DA name="Ext"      bType="Struct"    fc="EX" type="Ext_INC_1" />
+    </DOType>
+    <DOType id="MV_Float_1" cdc="MV">
+      <DA name="mag" bType="Struct"    fc="MX" dchg="true" type="AnalogueValue_Float_1" />
+      <DA name="q"   bType="Quality"   fc="MX" qchg="true" />
+      <DA name="t"   bType="Timestamp" fc="MX" />
+    </DOType>
+    <DOType id="ING_SP_TmOfsTmm" cdc="ING">
+      <DA name="setVal" bType="INT32"   fc="SP" dchg="true" > <Val>0</Val> </DA>
+      <DA name="minVal" bType="INT32"   fc="CF" > <Val>-1440</Val> </DA>
+      <DA name="maxVal" bType="INT32"   fc="CF" > <Val>1440</Val> </DA>
+    </DOType>
+    <DOType id="VSG_SP_Star_1" cdc="VSG">
+      <DA name="setVal" bType="VisString255"   fc="SP" dchg="true" > <Val>*</Val> </DA>
+    </DOType>
+    <DOType id="ING_SP_APPID" cdc="ING">
+      <DA name="setVal" bType="INT32"   fc="SP" dchg="true" > <Val>-1</Val> </DA>
+      <DA name="minVal" bType="INT32"   fc="CF" > <Val>-1</Val> </DA>
+      <DA name="maxVal" bType="INT32"   fc="CF" > <Val>65535</Val> </DA>
+    </DOType>
+    <DOType id="SPG_SP_1" cdc="SPG" >
+      <DA name="setVal" bType="BOOLEAN" fc="SP" dchg="true" />
+    </DOType>
+    <DOType id="VSS_1" cdc="VSS" desc="Visible string status" >
+      <DA name="stVal" bType="VisString255" fc="ST" dchg="true" />
+      <DA name="q"     bType="Quality"      fc="ST" qchg="true" />
+      <DA name="t"     bType="Timestamp"    fc="ST" />
+    </DOType>
+    <DOType id="ORG_1" cdc="ORG">
+      <DA name="setSrcRef" bType="VisString129" fc="SP" dchg="true" />
+    </DOType>
+    <DOType id="ORG_Star_1" cdc="ORG">
+      <DA name="setSrcRef" bType="VisString129" fc="SP" dchg="true" > <Val>*</Val> </DA>
+    </DOType>
+
+    <!-- Data Attribute Type -->
+    <DAType id="AnalogueValue_Float_1">
+      <BDA name="f" bType="FLOAT32" />
+    </DAType>
+    <DAType id="ENCOperate_1">
+      <BDA name="ctlVal" bType="Enum"   type="BehaviourModeKind" />
+      <BDA name="origin" bType="Struct" type="Originator_1" />
+      <BDA name="ctlNum" bType="INT8U" />
+      <BDA name="T"      bType="Timestamp" />
+      <BDA name="Test"   bType="BOOLEAN" />
+      <BDA name="Check"  bType="Check" />
+    </DAType>
+    <DAType id="SPCOperate_1">
+      <BDA name="ctlVal" bType="BOOLEAN" />
+      <BDA name="origin" bType="Struct" type="Originator_1" />
+      <BDA name="ctlNum" bType="INT8U" />
+      <BDA name="T"      bType="Timestamp" />
+      <BDA name="Test"   bType="BOOLEAN" />
+      <BDA name="Check"  bType="Check" />
+    </DAType>
+    <DAType id="INCOperate_1">
+      <BDA name="ctlVal" bType="INT32" />
+      <BDA name="origin" bType="Struct" type="Originator_1" />
+      <BDA name="ctlNum" bType="INT8U" />
+      <BDA name="T"      bType="Timestamp" />
+      <BDA name="Test"   bType="BOOLEAN" />
+      <BDA name="Check"  bType="Check" />
+    </DAType>
+    <DAType id="Originator_1">
+      <BDA name="orCat"   bType="Enum" type="OriginatorCategoryKind" />
+      <BDA name="orIdent" bType="Octet64" />
+    </DAType>
+    <DAType id="Ext_ENC_Mod_On_1">
+      <BDA name="ctlVal"      bType="Enum"    type="BehaviourModeKind" desc="INT/OUT. Remote control value. Если удаленное управление разрешено, ENC.stVal принимает данное значение. Используется для восстановления ctlVal из nvstate">
+        <Val>on</Val>
+      </BDA>
+      <BDA name="initialized" bType="BOOLEAN"                          desc="INT. Используется при процедуре 'startup', чтобы показать, что она завершилась и значение stVal может быть использовано для вычисления других зависимых атрибутов"/> <!-- INT. Используется при процедуре 'startup', чтобы показать, что она завершилась и значение Mod.stval/Beh.stVal может быть использовано для вычисления других зависимых атрибутов -->
+      <BDA name="interlock"   bType="BOOLEAN"                          desc="IN.  Схема в состоянии блокировки, команда не может быть принята"/>
+    </DAType>
+    <DAType id="Ext_ENC_Mod_On_Loc_1">
+      <BDA name="ctlVal"      bType="Enum"    type="BehaviourModeKind" desc="INT/OUT. Remote control value. Если удаленное управление разрешено, ENC.stVal принимает данное значение. Используется для восстановления ctlVal из nvstate">
+        <Val>on</Val>
+      </BDA>
+      <BDA name="LocCtlVal"   bType="Enum"    type="BehaviourModeKind" desc="IN.  Local Control value. Если локальное управление разрешено, ENC.stVal принимает данное значение" />
+      <BDA name="initialized" bType="BOOLEAN"                          desc="INT. Используется при процедуре 'startup', чтобы показать, что она завершилась и значение stVal может быть использовано для вычисления других зависимых атрибутов"/> <!-- INT. Используется при процедуре 'startup', чтобы показать, что она завершилась и значение Mod.stval/Beh.stVal может быть использовано для вычисления других зависимых атрибутов -->
+      <BDA name="interlock"   bType="BOOLEAN"                          desc="IN.  Схема в состоянии блокировки, команда не может быть принята"/>
+    </DAType>
+    <DAType id="Ext_SPC_1">
+      <BDA name="ctlVal"      bType="BOOLEAN"                          desc="INT/OUT. Remote control value. Если удаленное управление разрешено, SPC.stVal принимает данное значение. Используется для восстановления ctlVal из nvstate" />
+      <BDA name="initialized" bType="BOOLEAN"                          desc="INT. Используется при процедуре 'startup', чтобы показать, что она завершилась и значение stVal может быть использовано для вычисления других зависимых атрибутов"/> <!-- INT. Используется при процедуре 'startup', чтобы показать, что она завершилась и значение Mod.stval/Beh.stVal может быть использовано для вычисления других зависимых атрибутов -->
+      <BDA name="interlock"   bType="BOOLEAN"                          desc="IN.  Схема в состоянии блокировки, команда не может быть принята"/>
+    </DAType>
+    <DAType id="Ext_SPC_Loc_1">
+      <BDA name="ctlVal"      bType="BOOLEAN"                          desc="INT/OUT. Remote control value. Если удаленное управление разрешено, SPC.stVal принимает данное значение. Используется для восстановления ctlVal из nvstate" />
+      <BDA name="LocCtlVal"   bType="BOOLEAN"                          desc="IN.  Local Control value. Если локальное управление разрешено, SPC.stVal принимает данное значение" />
+      <BDA name="initialized" bType="BOOLEAN"                          desc="INT. Используется при процедуре 'startup', чтобы показать, что она завершилась и значение stVal может быть использовано для вычисления других зависимых атрибутов"/> <!-- INT. Используется при процедуре 'startup', чтобы показать, что она завершилась и значение Mod.stval/Beh.stVal может быть использовано для вычисления других зависимых атрибутов -->
+      <BDA name="interlock"   bType="BOOLEAN"                          desc="IN.  Схема в состоянии блокировки, команда не может быть принята"/>
+    </DAType>
+    <DAType id="Ext_INC_1">
+      <BDA name="ctlVal"      bType="INT32"                            desc="INT/OUT. Remote control value. Если удаленное управление разрешено, INC.stVal принимает данное значение. Используется для восстановления ctlVal из nvstate" />
+      <BDA name="initialized" bType="BOOLEAN"                          desc="INT. Используется при процедуре 'startup', чтобы показать, что она завершилась и значение stVal может быть использовано для вычисления других зависимых атрибутов"/> <!-- INT. Используется при процедуре 'startup', чтобы показать, что она завершилась и значение Mod.stval/Beh.stVal может быть использовано для вычисления других зависимых атрибутов -->
+      <BDA name="interlock"   bType="BOOLEAN"                          desc="IN.  Схема в состоянии блокировки, команда не может быть принята"/>
+    </DAType>
+
+    <EnumType id="BehaviourModeKind">
+      <EnumVal ord="1">on</EnumVal>
+      <EnumVal ord="2">blocked</EnumVal>
+      <EnumVal ord="3">test</EnumVal>
+      <EnumVal ord="4">test/blocked</EnumVal>
+      <EnumVal ord="5">off</EnumVal>
+    </EnumType>
+    <EnumType id="ClockSourceKind">
+      <EnumVal ord="1">Unknown</EnumVal>
+      <EnumVal ord="2">SNTP</EnumVal>
+      <EnumVal ord="3">PTP</EnumVal>
+      <EnumVal ord="4">IRIG-B</EnumVal>
+      <EnumVal ord="5">Substation internal</EnumVal>
+    </EnumType>
+    <EnumType id="ClockSyncKind">
+      <EnumVal ord="1">InternalClock</EnumVal>
+      <EnumVal ord="2">LocalAreaClock</EnumVal>
+      <EnumVal ord="3">GlobalAreaClock</EnumVal>
+    </EnumType>
+    <EnumType id="CtlModelKind">
+      <EnumVal ord="0">status-only</EnumVal>
+      <EnumVal ord="1">direct-with-normal-security</EnumVal>
+      <EnumVal ord="2">sbo-with-normal-security</EnumVal>
+      <EnumVal ord="3">direct-with-enhanced-security</EnumVal>
+      <EnumVal ord="4">sbo-with-enhanced-security</EnumVal>
+    </EnumType>
+    <EnumType id="OriginatorCategoryKind">
+      <EnumVal ord="0">not-supported</EnumVal>
+      <EnumVal ord="1">bay-control</EnumVal>
+      <EnumVal ord="2">station-control</EnumVal>
+      <EnumVal ord="3">remote-control</EnumVal>
+      <EnumVal ord="4">automatic-bay</EnumVal>
+      <EnumVal ord="5">automatic-station</EnumVal>
+      <EnumVal ord="6">automatic-remote</EnumVal>
+      <EnumVal ord="7">maintenance</EnumVal>
+      <EnumVal ord="8">process</EnumVal>
+    </EnumType>
+    <EnumType id="HealthKind">
+      <EnumVal ord="1">Ok</EnumVal>
+      <EnumVal ord="2">Warning</EnumVal>
+      <EnumVal ord="3">Alarm</EnumVal>
+    </EnumType>
+    <EnumType id="SeverityKind">
+      <EnumVal ord="0">unknown</EnumVal>
+      <EnumVal ord="1">critical</EnumVal>
+      <EnumVal ord="2">major</EnumVal>
+      <EnumVal ord="3">minor</EnumVal>
+      <EnumVal ord="4">warning</EnumVal>
+    </EnumType>     
+
+  </DataTypeTemplates>
+</SCL>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ip xmlns="http://flexibilis.com/schema/1.0/config">
+  <iface name="SE01">
+    <address>192.168.7.111</address>
+    <netmask>24</netmask>
+  </iface>
+</ip>

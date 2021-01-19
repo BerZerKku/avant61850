@@ -1,0 +1,49 @@
+
+/* MDIO bus used for indirect accesses */
+mdio1: eth_mdio@028400000 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	compatible = "flx,eth-mdio";
+	reg = <0x02840000 0x100>;
+};
+
+/* Indirect register access via MDIO */
+flx_bus@2 {
+	#address-cells = <1>;
+	#size-cells = <1>;
+	compatible = "flx,bus-mdio";
+	/* MDIO bus used for indirect register accesses */
+	mdio-bus = <&mdio1>;
+	/*
+	 * MDIO slave address to use for indirect Avalon accesses.
+	 * If present, Avalon address bits 15..1 are in low address
+	 * register bits 15..1 and bit 0 is the MDIO read/write bit.
+	 *
+	 * If not present, MDIO slave address bits are used for
+	 * Avalon address bits 20..16, bit0 is assumed to be zero.
+	 *
+	 * Avalon address bit 0 is always zero.
+	 */
+	mdio-addr = <0x10>;
+
+	/* Devices on Avalon bus */
+	/* frs@BUS-ADDR { ... }; */
+	/* frtc@BUS-ADDR { ... }; */
+
+	/* MDIO-to-Avalon bridge PHYs (bridge bypass access, optional) */
+	phys {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		phy0: phy@0 {
+			compatible = "ethernet-phy-ieee802.3-c22";
+			reg = <0x00>;
+		};
+
+		phy1: phy@1 {
+			compatible = "ethernet-phy-ieee802.3-c22";
+			reg = <0x01>;
+		};
+	};
+};
+

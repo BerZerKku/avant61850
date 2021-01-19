@@ -1,0 +1,8 @@
+{
+  "mmstime"   : "/home/avant/iec61850/config/upask_minimal_tx_rx.nvstate.json",
+  "dt"        : "SYS/LTIM1.TmUseDT.setVal",
+  "ofs"       : "SYS/LTIM1.TmOfsTmm.setVal",
+  "localtime" : 300,
+  "timeout"   : 1000
+}
+
