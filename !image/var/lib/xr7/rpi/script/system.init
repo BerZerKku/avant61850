@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh 
 
 # Allow sharing of this script by multiple hardware types.
 test "$FLX_SCRIPT_PATH" || . /var/lib/xr7/rpi/script/environ
@@ -9,6 +9,8 @@ start()
 
 	$FLX_SCRIPT_PATH/drivers.init start
 	ip link set SE01 up
+	ip link set SE21 up
+	ip link set SE31 up
 }
 
 stop()

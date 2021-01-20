@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<versions xmlns="http://flexibilis.com/schema/xr7_monitor/1.0/config">
+  <group name="Hardware">
+    <entry name="Raspberry Pi 2 Model B">-</entry>
+    <entry name="Raspberry Pi Model B+">-</entry>
+    <entry name="XRS7003/XRS7004 Reference Design Board">-</entry>
+  </group>
+  <group name="Software">
+    <entry name="XRS Reference Software">1.0.1</entry>
+    <entry name="Linux kernel">3.18</entry>
+  </group>
+</versions>
+

@@ -189,10 +189,11 @@ start()
 	fi
 
 	setup_delay_files
-
-	# On BVP_61850_v2.4 reset pin for IC xf1 is same as XRS
+	
 	sleep 1
 	ip link set xf1 up
+	ip link set xf2 up
+	ip link set xf3 up
 
 	insmod $FLX_DRIVER_PATH/dp83848.ko
 	insmod $FLX_DRIVER_PATH/m88e1512.ko
@@ -212,7 +213,7 @@ start()
 	# length 1500 + management trailer, so decrease MTU.
 	# Also bring up interfaces momentarily to configure PHYs
 	# before enabling interrupt.
-	for i in SE01 CE01 CE02 CE03 ; do
+	for i in SE01 CE01 CE02 SE21 CE21 CE22 SE31 CE31 CE32; do
 		if ip link | grep -q " $i:" ; then
 			ip link set dev $i mtu 1498
 			ip link set dev $i up
@@ -233,6 +234,8 @@ stop()
 	echo "Unload drivers"
 
 	ip link set xf1 down
+	ip link set xf2 down
+	ip link set xf3 down
 
 	lsmod | grep -q '^flx_frs ' && rmmod flx_frs
 	lsmod | grep -q '^flx_fpts ' && rmmod flx_fpts

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ethernet xmlns="http://flexibilis.com/schema/1.0/config">
+  <iface name="CE01">
+    <status>up</status>
+    <linkmode>automatic</linkmode>
+  </iface>
+  <iface name="CE02">
+    <status>up</status>
+    <linkmode>automatic</linkmode>
+  </iface>
+  <iface name="CE21">
+    <status>up</status>
+    <linkmode>automatic</linkmode>
+  </iface>
+  <iface name="CE22">
+    <status>up</status>
+    <linkmode>automatic</linkmode>
+  </iface>
+  <iface name="CE31">
+    <status>up</status>
+    <linkmode>automatic</linkmode>
+  </iface>
+  <iface name="CE32">
+    <status>up</status>
+    <linkmode>automatic</linkmode>
+  </iface>
+</ethernet>

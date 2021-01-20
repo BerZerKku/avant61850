@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PTP_config xmlns="http://flexibilis.com/schema/ptp/1.0/config">
+  <config_ver>1.6</config_ver>
+  <General>
+    <debug>0</debug>
+  </General>
+  <Interface name="SE01">
+    <profile>iec_level1</profile>
+    <mode>ordinary</mode>
+    <delay>disabled</delay>
+  </Interface>
+  <Interface name="CE01">
+    <profile>iec_level1</profile>
+    <mode>tc</mode>
+    <delay>p2p</delay>
+    <FRS>
+      <delay name="copper" speed="1000">
+        <input>256000</input>
+        <output>173000</output>
+      </delay>
+      <delay name="copper" speed="100">
+        <input>553000</input>
+        <output>762000</output>
+      </delay>
+      <delay name="copper" speed="10">
+        <input>0</input>
+        <output>0</output>
+      </delay>
+      <delay name="1000Base-X" speed="1000">
+        <input>75000</input>
+        <output>225000</output>
+      </delay>
+      <delay name="100Base-FX" speed="100">
+        <input>235000</input>
+        <output>289000</output>
+      </delay>
+      <delay name="SGMII" speed="1000">
+        <input>426000</input>
+        <output>348000</output>
+      </delay>
+      <delay name="SGMII" speed="100">
+        <input>586000</input>
+        <output>412000</output>
+      </delay>
+      <delay name="SGMII" speed="10">
+        <input>0</input>
+        <output>0</output>
+      </delay>
+    </FRS>
+  </Interface>
+  <Interface name="CE02">
+    <profile>iec_level1</profile>
+    <mode>tc</mode>
+    <delay>p2p</delay>
+    <FRS>
+      <delay name="copper" speed="1000">
+        <input>256000</input>
+        <output>173000</output>
+      </delay>
+      <delay name="copper" speed="100">
+        <input>553000</input>
+        <output>762000</output>
+      </delay>
+      <delay name="copper" speed="10">
+        <input>0</input>
+        <output>0</output>
+      </delay>
+      <delay name="1000Base-X" speed="1000">
+        <input>75000</input>
+        <output>225000</output>
+      </delay>
+      <delay name="100Base-FX" speed="100">
+        <input>235000</input>
+        <output>289000</output>
+      </delay>
+      <delay name="SGMII" speed="1000">
+        <input>426000</input>
+        <output>348000</output>
+      </delay>
+      <delay name="SGMII" speed="100">
+        <input>586000</input>
+        <output>412000</output>
+      </delay>
+      <delay name="SGMII" speed="10">
+        <input>0</input>
+        <output>0</output>
+      </delay>
+    </FRS>
+  </Interface>
+  <Basic>
+    <one_step_clock>1</one_step_clock>
+  </Basic>
+  <Clock>
+    <clock_class>187</clock_class>
+    <clock_accuracy>1us</clock_accuracy>
+    <clock_priority1>128</clock_priority1>
+    <clock_priority2>128</clock_priority2>
+    <domain>0</domain>
+    <time_source>internal oscillator</time_source>
+  </Clock>
+  <Statistics>
+    <window_length>900</window_length>
+    <pps_interface>PPS1</pps_interface>
+  </Statistics>
+</PTP_config>
+

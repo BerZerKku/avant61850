@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<features xmlns="http://flexibilis.com/schema/xr7_monitor/1.0/config">
+    <feature name="standard">standard</feature>
+    <feature name="interface">ethernet,ip,vlan</feature>
+    <feature name="interface-statistics">standard</feature>
+    <feature name="pps-statistics">standard</feature>
+    <feature name="switch">standard</feature>
+    <feature name="routing">switching</feature>
+    <feature name="vlan">standard</feature>
+    <feature name="ethernet-redundancy">standard</feature>
+    <feature name="synchronization">standard</feature>
+    <feature name="upgrade">standard</feature>
+</features>

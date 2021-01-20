@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<redundancy_supervision xmlns="http://flexibilis.com/schema/1.0/config">
+    <LifeCheckInterval>2000</LifeCheckInterval>
+    <NodeForgetTime>60000</NodeForgetTime>  
+    <ProxyNodeTableForgetTime>60000</ProxyNodeTableForgetTime>
+    <EntryForgetTime>20</EntryForgetTime>
+    <port name="SE01">
+        <mode>PRP</mode>
+        <portS>SE01</portS>
+        <portA>CE01</portA>
+        <portB>CE02</portB>
+        <NetID>1</NetID>
+        <mac_address>01:15:4E:00:01:00</mac_address>
+    </port>
+    <port name="SE21">
+        <mode>PRP</mode>
+        <portS>SE21</portS>
+        <portA>CE21</portA>
+        <portB>CE22</portB>
+        <NetID>2</NetID>
+        <mac_address>01:15:4E:00:01:01</mac_address>
+    </port>
+    <port name="SE31">
+        <mode>PRP</mode>
+        <portS>SE31</portS>
+        <portA>CE31</portA>
+        <portB>CE32</portB>
+        <NetID>3</NetID>
+        <mac_address>01:15:4E:00:01:02</mac_address>
+    </port>
+</redundancy_supervision>

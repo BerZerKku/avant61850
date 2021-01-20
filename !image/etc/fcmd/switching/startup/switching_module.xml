@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<switching xmlns="http://flexibilis.com/schema/1.0/config">
+  <switch name="SE01">
+    <port name="CE01"/>
+    <port name="CE02"/>
+  </switch>
+  <switch name="SE21">
+    <port name="CE21"/>
+    <port name="CE22"/>
+  </switch>
+  <switch name="SE31">
+    <port name="CE31"/>
+    <port name="CE32"/>
+  </switch>
+</switching>
