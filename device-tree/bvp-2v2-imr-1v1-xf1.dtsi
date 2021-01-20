@@ -83,28 +83,28 @@
             };
         };
 
-        ts@00290000 {
+        ts@290000 {
             compatible = "flx,ts";
             reg = <0x00290000 0x1200>;
             interrupt-parent = <&gpio>;
             interrupts = <24 8>;
         };
 
-        ts@00298000 {
+        ts@298000 {
             compatible = "flx,ts";
             reg = <0x00298000 0x1200>;
             interrupt-parent = <&gpio>;
             interrupts = <24 8>;
         };
 
-        ts@002a0000 {
+        ts@2a0000 {
             compatible = "flx,ts";
             reg = <0x002a0000 0x1200>;
             interrupt-parent = <&gpio>;
             interrupts = <24 8>;
         };
 
-        ts@002a8000 {
+        ts@2a8000 {
             compatible = "flx,ts";
             reg = <0x002a8000 0x1200>;
             interrupt-parent = <&gpio>;
@@ -112,7 +112,7 @@
         };
     };
 
-    ioexpand_gpio: pca9555 {
+    ioexpand_gpio: pca9555@20 {
         compatible = "nxp,pca9555";
         reg = <0x20>;
 
