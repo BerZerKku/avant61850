@@ -62,6 +62,7 @@
 #include <linux/syscalls.h>
 #include <linux/fcntl.h>
 #include <linux/version.h>
+#include <uapi/asm-generic/ioctls.h>
 
 
 
@@ -268,11 +269,10 @@ static int IrqCounter = 0;
 //                                    delay
 //
 // ===============================================================================================
-static inline void delay(int32_t count)
-    {
+static inline void delay(int32_t count) {
 	asm volatile("__delay_%=: subs %[count], %[count], #1; bne __delay_%=\n"
 	    : "=r"(count): [count]"0"(count) : "cc");
-    }
+}
 
 // ===============================================================================================
 //
@@ -290,8 +290,7 @@ static inline void delay(int32_t count)
 //      the linear buffer.
 //
 // ===============================================================================================
-static irqreturn_t ttyebus_irq_handler(int irq, void* dev_id)
-    {
+static irqreturn_t ttyebus_irq_handler(int irq, void* dev_id) {
     unsigned int IntStatus;
     unsigned int DataWord;
     unsigned int IntMask;
@@ -303,8 +302,7 @@ static irqreturn_t ttyebus_irq_handler(int irq, void* dev_id)
 
     IntStatus = ioread32(UART_INT_STAT);
 
-    if (IntStatus & INT_RX)
-        {
+    if (IntStatus & INT_RX) {
         // clear the interrupt
         // ===================
         iowrite32(INT_RX, UART_INT_CLR);
@@ -320,8 +318,7 @@ static irqreturn_t ttyebus_irq_handler(int irq, void* dev_id)
         if (RxNext >= RX_BUFF_SIZE)
             RxNext = 0;
 
-        if (RxNext != RxTail)
-            {
+        if (RxNext != RxTail) {
             // data was received and is available in the receiver holding register
             // ===================================================================
             RxBuff[RxHead] = DataWord;
@@ -329,17 +326,16 @@ static irqreturn_t ttyebus_irq_handler(int irq, void* dev_id)
 #ifdef IRQDEBUG
             printk(KERN_NOTICE "ttyebus: IRQ: One byte received. RxHead=%d, RxTail=%d\n", RxHead, RxTail);
 #endif
-            }
+        }
 
-        else
-            {
+        else {
             // buffer overrun. do nothing. just discard the data.
             // eventually todo: if someone needs to know, we can throw an error here
             // =====================================================================
 #ifdef IRQDEBUG
             printk(KERN_NOTICE "ttyebus: IRQ: Buffer overrun. RxHead=%d, RxTail=%d\n", RxHead, RxTail);
 #endif
-            }
+        }
         spin_unlock(&SpinLock);
 
         // clear any receiver error
@@ -349,12 +345,11 @@ static irqreturn_t ttyebus_irq_handler(int irq, void* dev_id)
         // if the calling task is waiting, wake him up. If there is no task at all, this is a NOP
         // ======================================================================================
         wake_up(&WaitQueue);
-        }
+    }
 
     // Transmitter
     // ===========
-    if (IntStatus & INT_TX)
-        {
+    if (IntStatus & INT_TX) {
         // clear the interrupt
         // ===================
         iowrite32(INT_TX, UART_INT_CLR);
@@ -363,8 +358,7 @@ static irqreturn_t ttyebus_irq_handler(int irq, void* dev_id)
         // see if some more data available
         // ==================================================
         spin_lock(&SpinLock);
-        if (TxTail < TxHead)
-            {
+        if (TxTail < TxHead) {
 #ifdef IRQDEBUG
             printk(KERN_NOTICE "ttyebus: IRQ: Transmitting one byte. TxHead=%d, TxTail=%d\n", TxHead, TxTail);
 #endif
@@ -373,9 +367,8 @@ static irqreturn_t ttyebus_irq_handler(int irq, void* dev_id)
             DataWord = TxBuff[TxTail++];
             iowrite32(DataWord, UART_DATA);
             // (do nothing with the interrupt line - keep the INT_TX active)
-            }
-        else
-            {
+        }
+        else {
 #ifdef IRQDEBUG
             printk(KERN_NOTICE "ttyebus: IRQ: Stopping Tx Interrupt. TxHead=%d, TxTail=%d\n", TxHead, TxTail);
 #endif
@@ -383,9 +376,9 @@ static irqreturn_t ttyebus_irq_handler(int irq, void* dev_id)
             // =============================================================
             IntMask = ioread32(UART_INT_MASK);
             iowrite32(IntMask & ~INT_TX, UART_INT_MASK);
-            }
-        spin_unlock(&SpinLock);
         }
+        spin_unlock(&SpinLock);
+    }
 
 #ifdef IRQDEBUG
     printk(KERN_NOTICE "ttyebus: IRQ %d exit. RxHead=%d, RxTail=%d, TxHead=%d, TxTail=%d\n", IrqCounter, RxHead, RxTail, TxHead, TxTail);
@@ -393,7 +386,7 @@ static irqreturn_t ttyebus_irq_handler(int irq, void* dev_id)
 #endif
 
     return IRQ_HANDLED;
-    }
+}
 
 
 // ===============================================================================================
@@ -413,13 +406,12 @@ static irqreturn_t ttyebus_irq_handler(int irq, void* dev_id)
 //      connect the ports to the UART Rx and Tx
 //
 // ===============================================================================================
-static void ttyebus_set_gpio_mode(unsigned int Gpio, unsigned int Function)
-    {
+static void ttyebus_set_gpio_mode(unsigned int Gpio, unsigned int Function) {
     unsigned int RegOffset = (Gpio / 10) << 2;
     unsigned int Bit = (Gpio % 10) * 3;
     volatile unsigned int Value = ioread32(GpioAddr + RegOffset);
     iowrite32((Value & ~(0x7 << Bit)) | ((Function & 0x7) << Bit), GpioAddr + RegOffset);
-    }
+}
 
 
 // ===============================================================================================
@@ -438,8 +430,7 @@ static void ttyebus_set_gpio_mode(unsigned int Gpio, unsigned int Function)
 //      Set the pull-up or pull-down at the specified GPIO port
 //
 // ===============================================================================================
-void ttyebus_gpio_pullupdown(unsigned int Gpio, unsigned int pud)
-    {
+void ttyebus_gpio_pullupdown(unsigned int Gpio, unsigned int pud) {
     // fill the new value for pull up or down
     // ======================================
     iowrite32(pud, GPIO_PULL);
@@ -454,7 +445,7 @@ void ttyebus_gpio_pullupdown(unsigned int Gpio, unsigned int pud)
     // ===========================================
     iowrite32(0, GPIO_PULL);
     iowrite32(0, GPIO_PULLCLK0 + GPIO_BANK);
-    }
+}
 
 
 // ===============================================================================================
@@ -474,28 +465,25 @@ void ttyebus_gpio_pullupdown(unsigned int Gpio, unsigned int pud)
 //      Probe the receiver if some data available. Return after timeout anyway.
 //
 // ===============================================================================================
-static unsigned int ttyebus_poll(struct file* file_ptr, poll_table* wait)
-    {
+static unsigned int ttyebus_poll(struct file* file_ptr, poll_table* wait) {
 #ifdef DEBUG
     printk(KERN_NOTICE "ttyebus: Poll request");
 #endif
 
     poll_wait(file_ptr, &WaitQueue, wait);
-    if (RxTail != RxHead)
-        {
+    if (RxTail != RxHead) {
 #ifdef DEBUG
         printk(KERN_NOTICE "ttyebus: Poll succeeded. RxHead=%d, RxTail=%d\n", RxHead, RxTail);
 #endif
         return POLLIN | POLLRDNORM;
-        }
-    else
-        {
+    }
+    else {
 #ifdef DEBUG
         printk(KERN_NOTICE "ttyebus: Poll timeout");
 #endif
         return 0;
-        }
     }
+}
 
 
 // ===============================================================================================
@@ -518,8 +506,7 @@ static unsigned int ttyebus_poll(struct file* file_ptr, poll_table* wait)
 //      "cat /dev/ttyebus"
 //
 // ===============================================================================================
-static ssize_t ttyebus_read(struct file* file_ptr, char __user* user_buffer, size_t Count, loff_t* offset)
-    {
+static ssize_t ttyebus_read(struct file* file_ptr, char __user* user_buffer, size_t Count, loff_t* offset) {
     unsigned int NumBytes;
     unsigned int result;
     unsigned long Flags;
@@ -535,13 +522,12 @@ static ssize_t ttyebus_read(struct file* file_ptr, char __user* user_buffer, siz
     // happen where new data arrives between testing (RxTail != RxHead) and effective sleeping of this task.
     // =====================================================================================================
     result = wait_event_timeout(WaitQueue, RxTail != RxHead, msecs_to_jiffies(60000));
-    if (result == 0)
-        {
+    if (result == 0) {
 #ifdef DEBUG
         printk(KERN_NOTICE "ttyebus: Read timeout");
 #endif
 		return -EBUSY; // timeout
-        }
+    }
 
 #ifdef IRQDEBUG
     printk(KERN_NOTICE "ttyebus: Read event. RxHead=%d, RxTail=%d\n", RxHead, RxTail);
@@ -552,12 +538,11 @@ static ssize_t ttyebus_read(struct file* file_ptr, char __user* user_buffer, siz
     // =========================================================
     NumBytes = 0;
     spin_lock_irqsave(&SpinLock, Flags);
-    while (RxTail != RxHead && NumBytes < Count)
-        {
+    while (RxTail != RxHead && NumBytes < Count) {
         buffer[NumBytes++] = RxBuff[RxTail++];
         if (RxTail >= RX_BUFF_SIZE)
             RxTail = 0;
-        }
+    }
     spin_unlock_irqrestore(&SpinLock, Flags);
 
     // copying data to user space requires a special function to be called
@@ -570,7 +555,7 @@ static ssize_t ttyebus_read(struct file* file_ptr, char __user* user_buffer, siz
 #endif
 
     return NumBytes;        // the number of bytes actually received
-    }
+}
     
     
 // ===============================================================================================
@@ -593,8 +578,7 @@ static ssize_t ttyebus_read(struct file* file_ptr, char __user* user_buffer, siz
 //      "echo "hello" > /dev/ttyebus"
 //
 // ===============================================================================================
-static ssize_t ttyebus_write(struct file* file_ptr, const char __user* user_buffer, size_t Count, loff_t* offset)
-    {
+static ssize_t ttyebus_write(struct file* file_ptr, const char __user* user_buffer, size_t Count, loff_t* offset) {
     int result;
     int Timeout;
     unsigned long Flags;
@@ -648,7 +632,7 @@ static ssize_t ttyebus_write(struct file* file_ptr, const char __user* user_buff
 #endif
 
     return Count;        // the number of bytes actually transmitted
-    }
+}
     
     
 
@@ -666,8 +650,7 @@ static ssize_t ttyebus_write(struct file* file_ptr, const char __user* user_buff
 //      Called when a process tries to open the device file, like "cat /dev/ttyebus"
 //
 // ===============================================================================================
-static int ttyebus_open(struct inode* inode, struct file* file)
-    {
+static int ttyebus_open(struct inode* inode, struct file* file) {
     unsigned int UartCtrl;
 
 #ifdef DEBUG
@@ -736,7 +719,7 @@ static int ttyebus_open(struct inode* inode, struct file* file)
 #endif
 
 	return 0;
-    }
+}
 
 
 // ===============================================================================================
@@ -753,8 +736,7 @@ static int ttyebus_open(struct inode* inode, struct file* file)
 //      Called when a process closes the device file.
 //
 // ===============================================================================================
-static int ttyebus_close(struct inode *inode, struct file *file)
-    {
+static int ttyebus_close(struct inode *inode, struct file *file) {
     printk(KERN_NOTICE "ttyebus: Close at at major %d  minor %d\n", imajor(inode), iminor(inode));
 
 	DeviceOpen--;
@@ -766,7 +748,7 @@ static int ttyebus_close(struct inode *inode, struct file *file)
     printk(KERN_NOTICE "ttyebus: Close exit");
 
 	return 0;
-    }
+}
 
 
 // ===============================================================================================
@@ -785,10 +767,31 @@ static int ttyebus_close(struct inode *inode, struct file *file)
 //      is working. So only return an OK status
 //
 // ===============================================================================================
-static long ttyebus_ioctl(struct file *fp, unsigned int cmd, unsigned long arg)
-    {
-	return 0;
+static long ttyebus_ioctl(struct file *fp, unsigned int cmd, unsigned long arg) {
+    int numbytes;
+    unsigned long Flags;
+    int ret = 0; /* -ENOIOCTLCMD; */
+
+    switch(cmd) {
+    case TIOCINQ: 
+        spin_lock_irqsave(&SpinLock, Flags);
+        if (RxTail > RxHead) {
+            numbytes = RxHead - RxTail + RX_BUFF_SIZE;
+        } else {
+            numbytes = RxHead - RxTail;
+        }
+        spin_unlock_irqrestore(&SpinLock, Flags);
+
+        // if (numbytes > 0)    
+        //     printk(KERN_NOTICE "ttyebus: ttyebus_ioctl, numbytes = %d\n", numbytes);
+
+        ret = put_user(numbytes, (unsigned int __user *) arg);
+    default:
+        break;    
     }
+
+    return ret;
+}
 
 
 // ===============================================================================================
@@ -802,8 +805,7 @@ static long ttyebus_ioctl(struct file *fp, unsigned int cmd, unsigned long arg)
 //      Extract the number and return it.
 //
 // ===============================================================================================
-unsigned int ttyebus_raspi_model(void)
-    {
+unsigned int ttyebus_raspi_model(void) {
     struct file* filp = NULL;
     char buf[32];
     unsigned int NumBytes = 0;
@@ -817,11 +819,10 @@ unsigned int ttyebus_raspi_model(void)
     // read the file
     // =============
     filp = filp_open("/sys/firmware/devicetree/base/compatible", O_RDONLY, 0);
-    if (filp == NULL)
-        {
+    if (filp == NULL) {
         set_fs(old_fs);
         return 0;
-        }
+    }
     NumBytes = filp->f_op->read(filp, buf, sizeof(buf), &filp->f_pos);
     set_fs(old_fs);
 
@@ -836,14 +837,13 @@ unsigned int ttyebus_raspi_model(void)
 
     return 3;
 
-    switch(buf[12])
-        {
+    switch(buf[12]) {
         case '2' : return 2; break;
         case '3' : return 3; break;
         case '4' : return 4; break;
         default: return 1;
-        }
     }
+}
 
 
 // ===============================================================================================
@@ -863,8 +863,7 @@ unsigned int ttyebus_raspi_model(void)
 //      device name is given and the file_operations structure is also passed to the kernel.
 //
 // ===============================================================================================
-int ttyebus_register(void)
-    {
+int ttyebus_register(void) {
     int result;
     unsigned int PeriBase;
     unsigned int UartIrq;
@@ -876,21 +875,19 @@ int ttyebus_register(void)
     // Get the RASPI model
     // ===================
     RaspiModel = ttyebus_raspi_model();
-    if (RaspiModel < 1 || RaspiModel > 4)
-        {
+    if (RaspiModel < 1 || RaspiModel > 4) {
         printk(KERN_NOTICE "ttyebus: Unknown RASPI model %d\n", RaspiModel);
         return -EFAULT;
-        }
+    }
     printk(KERN_NOTICE "ttyebus: Found RASPI model %d\n", RaspiModel);
 
     // Dynamically allocate a major number for the device
     // ==================================================
     MajorNumber = register_chrdev(0, DEVICE_NAME, &ttyebus_fops);
-    if (MajorNumber < 0)
-        {
+    if (MajorNumber < 0) {
         printk(KERN_WARNING "ttyebus: can\'t register character device with errorcode = %i\n", MajorNumber);
         return MajorNumber;
-        }
+    }
 
 #ifdef DEBUG
     printk(KERN_NOTICE "ttyebus: registered character device with major number = %i and minor numbers 0...255\n", MajorNumber);
@@ -900,12 +897,11 @@ int ttyebus_register(void)
     // device_create so we are able to set the attributes to rw for everybody
     // ======================================================================
     result = misc_register(&misc);
-    if (result)
-        {
+    if (result) {
         unregister_chrdev(MajorNumber, DEVICE_NAME);
         printk(KERN_ALERT "ttyebus: Failed to create the device\n");
         return result;
-        }
+    }
 
     // remap the I/O registers to some memory we can access later on
     // =============================================================
@@ -928,12 +924,11 @@ int ttyebus_register(void)
         result = request_irq(UartIrq, ttyebus_irq_handler, IRQF_SHARED, "ttyebus_irq_handler", DEVICE_NAME);
     else
         result = request_irq(UartIrq, ttyebus_irq_handler, 0, "ttyebus_irq_handler", NULL);
-    if (result)
-        {
+    if (result) {
         unregister_chrdev(MajorNumber, DEVICE_NAME);
         printk(KERN_ALERT "ttyebus: Failed to request IRQ %d\n", UartIrq);
         return result;
-        }
+    }
     printk(KERN_INFO "ttyebus: device %s (irq %d) created correctly\n", DEVICE_NAME, UartIrq);
 
     DeviceOpen = 0;
@@ -955,8 +950,7 @@ int ttyebus_register(void)
 //      Unmap the I/O, free the IRQ and unregister the device
 //
 // ===============================================================================================
-void ttyebus_unregister(void)
-    {
+void ttyebus_unregister(void) {
     unsigned int UartIrq;
 
     printk(KERN_NOTICE "ttyebus: unregister_device()\n");
@@ -977,7 +971,7 @@ void ttyebus_unregister(void)
     unregister_chrdev(MajorNumber, DEVICE_NAME);
 
     MajorNumber = 0;
-    }
+}
 
 
 // ===============================================================================================
