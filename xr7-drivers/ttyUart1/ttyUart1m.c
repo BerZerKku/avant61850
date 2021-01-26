@@ -1,6 +1,6 @@
 //===============================================================================================================
 //
-// ttyebus - real time linux kernel module for the ebusd using the PL011 UART on a Rasperry Pi
+// ttyUart1 - real time linux kernel module for the ebusd using the PL011 UART on a Rasperry Pi
 //
 // Copyright (C) 2017 Galileo53 <galileo53@gmx.at>
 //
@@ -23,7 +23,7 @@
 // handler of the "Receiver Holding Register" interrupt.
 //
 // With RASPI 1 to 3 we are replacing the original interrupt of ttyAMA0. With RASPI 4 the interrupt is shared between
-// all 5 UARTs and so the interrupt of ttyebus is added to the shared list. Note that interrupt numbers in Raspbian
+// all 5 UARTs and so the interrupt of ttyUart1 is added to the shared list. Note that interrupt numbers in Raspbian
 // (Debian) are re-ordered by some Linux-internal logic, so we must always see what interrupt is assigned at a specific
 // RASPI / Raspbian version. This can be done by executing "cat /proc/interrupts" while ttyAMA0 is still active.
 //
@@ -45,8 +45,6 @@
 //
 //===============================================================================================================
 
-#define DEBUG 
-
 #include <linux/fs.h>               // file stuff
 #include <linux/kernel.h>           // printk()
 #include <linux/errno.h>            // error codes
@@ -65,17 +63,18 @@
 #include <linux/fcntl.h>
 #include <linux/version.h>
 
-// #define DEBUG 1                  // if uncommented, will write some debug messages to /var/log/kern.log
-#define IRQDEBUG 1               // if uncommented, writes messages from the interrupt handler too (there are a lot of messages!)
-// #define LOOPBACK 1               // if uncommented, connects the Tx output to the Rx input of the UART. For testing only.
+#define DEBUG 1                  // if uncommented, will write some debug messages to /var/log/kern.log
+#ifdef DEBUG
+// #define IRQDEBUG 1               // if uncommented, writes messages from the interrupt handler too (there are a lot of messages!)
+#endif
 
 // prototypes
-static int ttyebus_open(struct inode* inode, struct file* file);
-static int ttyebus_close(struct inode* inode, struct file* file);
-static unsigned int ttyebus_poll(struct file* file_ptr, poll_table* wait);
-static ssize_t ttyebus_read(struct file* file_ptr, char __user* user_buffer, size_t count, loff_t* offset);
-static ssize_t ttyebus_write(struct file* file_ptr, const char __user* user_buffer, size_t count, loff_t* offset);
-static long ttyebus_ioctl(struct file* fp, unsigned int cmd, unsigned long arg);
+static int ttyUart1_open(struct inode* inode, struct file* file);
+static int ttyUart1_close(struct inode* inode, struct file* file);
+static unsigned int ttyUart1_poll(struct file* file_ptr, poll_table* wait);
+static ssize_t ttyUart1_read(struct file* file_ptr, char __user* user_buffer, size_t count, loff_t* offset);
+static ssize_t ttyUart1_write(struct file* file_ptr, const char __user* user_buffer, size_t count, loff_t* offset);
+static long ttyUart1_ioctl(struct file* fp, unsigned int cmd, unsigned long arg);
 
 #define DEVICE_NAME "ttyUart1"           // The device will appear at /dev/ttyUart1
 #define BAUD_RATE 38400
@@ -86,22 +85,22 @@ MODULE_DESCRIPTION("Kernel module for the minu UART");
 MODULE_VERSION("1.00");
 
 // file operations with this kernel module
-static struct file_operations ttyebus_fops =
+static struct file_operations ttyUart1_fops =
     {
     .owner          = THIS_MODULE,
-    .open           = ttyebus_open,
-    .release        = ttyebus_close,
-    .poll           = ttyebus_poll,
-    .read           = ttyebus_read,
-    .write          = ttyebus_write,
-    .unlocked_ioctl = ttyebus_ioctl
+    .open           = ttyUart1_open,
+    .release        = ttyUart1_close,
+    .poll           = ttyUart1_poll,
+    .read           = ttyUart1_read,
+    .write          = ttyUart1_write,
+    .unlocked_ioctl = ttyUart1_ioctl
     };
 
 static struct miscdevice misc =
     {
     .minor = MISC_DYNAMIC_MINOR,
     .name = DEVICE_NAME,
-    .fops = &ttyebus_fops,
+    .fops = &ttyUart1_fops,
     .mode = S_IRUSR |   // User read
             S_IWUSR |   // User write
             S_IRGRP |   // Group read
@@ -175,9 +174,9 @@ static int IrqCounter = 0;
 #define GPIO_FSEL4          (GpioAddr+0x10)
 #define GPIO_FSEL5          (GpioAddr+0x14)
 
-#define GPIO_PULL           (GpioAddr+0x94)                       // Pull up/pull down
-#define GPIO_PULLCLK0       (GpioAddr+0x98)                       // Pull up/pull down clock
-#define GPIO_PULLCLK1       (GpioAddr+0x9C)                       // Pull up/pull down clock
+#define GPIO_PULL           (GpioAddr+0x94)  // Pull up/pull down
+#define GPIO_PULLCLK0       (GpioAddr+0x98)  // Pull up/pull down clock
+#define GPIO_PULLCLK1       (GpioAddr+0x9C)  // Pull up/pull down clock
 #define GPIO_BANK           (Gpio >> 5)
 #define GPIO_BIT            (1 << (Gpio & 0x1F))
 
@@ -186,16 +185,13 @@ static int IrqCounter = 0;
 #define GPIO_PULL_DOWN      1
 #define GPIO_PULL_UP        2
 
-// PL011 irq = 83 in kernel 3.18 and CM 3+
-// 16550  irq = 53 in kernel 5.4.51-v7+ and CM3+ 
-
 #define CLOCK 250000000UL
+
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4,0,0)
 #define RASPI_3_UART1_IRQ 29
 #else
 #define RASPI_3_UART1_IRQ 53
 #endif
-
 
 // 16550 UART register (16C650 type)
 // =================================
@@ -229,9 +225,12 @@ static int IrqCounter = 0;
 // ======================================
 #define UART_IIR_ID             (3 << 1)
 #define UART_IIR_ID_TX          (1 << 1)
+#define UART_IIR_FIFO_RX_CLR    (1 << 1)
 #define UART_IIR_ID_RX          (2 << 1)
+#define UART_IIR_FIFO_TX_CLR    (2 << 1)
 
 // UART Line Control Register
+// ==========================
 #define UART_LCR_DATA_SIZE      (3 << 0)
 #define UART_LCR_BREAK          (1 << 6)
 #define UART_LCR_DLAB_ACCESS    (1 << 7)
@@ -243,6 +242,7 @@ static int IrqCounter = 0;
 
 // UART Line Status Register
 // =========================
+#define UART_LSR_RX_OVERRUN     (1 << 1)
 
 // UART Modem Status Register
 // ==========================
@@ -255,11 +255,13 @@ static int IrqCounter = 0;
 #define UART_CNTL_RX_ENABLE     (1 << 0)
 #define UART_CNTL_TX_ENABLE     (1 << 1)
 
+//==============================================================================
+// use: printRegisters(__FUNCTION__)
 static void printRegisters(const char *info) {
   printk(KERN_NOTICE "*** %s", info);
   printk(KERN_NOTICE "ttyUart1: AUXENB %.8X\n", ioread32(AUXENB));
-  printk(KERN_NOTICE "ttyUart1: AUX_MU_IIR_REG %.8X\n", ioread32(AUX_MU_IIR_REG));
   printk(KERN_NOTICE "ttyUart1: AUX_MU_IER_REG %.8X\n", ioread32(AUX_MU_IER_REG));
+  printk(KERN_NOTICE "ttyUart1: AUX_MU_IIR_REG %.8X\n", ioread32(AUX_MU_IIR_REG));
   printk(KERN_NOTICE "ttyUart1: AUX_MU_LCR_REG %.8X\n", ioread32(AUX_MU_LCR_REG));    
   printk(KERN_NOTICE "ttyUart1: AUX_MU_MCR_REG %.8X\n", ioread32(AUX_MU_MCR_REG));
   printk(KERN_NOTICE "ttyUart1: AUX_MU_LSR_REG %.8X\n", ioread32(AUX_MU_LSR_REG)); 
@@ -270,126 +272,98 @@ static void printRegisters(const char *info) {
   printk(KERN_NOTICE "******");
 }
 
-
-// ===============================================================================================
-//
-//                                    delay
-//
-// ===============================================================================================
-static inline void delay(int32_t count)
-    {
+//==============================================================================
+static inline void delay(int32_t count) {
   asm volatile("__delay_%=: subs %[count], %[count], #1; bne __delay_%=\n"
-      : "=r"(count): [count]"0"(count) : "cc");
-    }
+                : "=r"(count): [count]"0"(count) : "cc");
+}
 
-// ===============================================================================================
-//
-//                                    ttyebus_irq_handler
-//
-// ===============================================================================================
-//
-// Parameter:
-//
-// Returns:
-//
-// Description:
-//      Fired on interrupt. If data is in the receiver holding register, transfer it to the ring
-//      buffer. If transmitter holding register has become empty, fill it with another data from
-//      the linear buffer.
-//
-// ===============================================================================================
-static irqreturn_t ttyebus_irq_handler(int irq, void* dev_id) {
+//==============================================================================
+static irqreturn_t ttyUart1_irq_handler(int irq, void* dev_id) {
   unsigned int IntStatus;
   unsigned int DataWord;
   unsigned int IntMask;
   unsigned int RxNext;
+  unsigned int NumBytes;
 
-  printRegisters(__FUNCTION__);
-  printk(KERN_NOTICE "ttyUart1: irq %d\n", irq); 
 #ifdef IRQDEBUG
-  printk(KERN_NOTICE "ttyUart1: IRQ %d called. RxHead=%d, RxTail=%d, TxHead=%d, TxTail=%d\n", IrqCounter, RxHead, RxTail, TxHead, TxTail);
+  printk(KERN_NOTICE "ttyUart1: IRQ %d called. RxHead=%d, RxTail=%d, TxHead=%d, TxTail=%d\n", 
+          IrqCounter, RxHead, RxTail, TxHead, TxTail);
 #endif
 
   IntStatus = ioread32(AUX_MU_IIR_REG) & UART_IIR_ID;
 
-//     if (IntStatus & INT_RX)
-//         {
-//         // clear the interrupt
-//         // ===================
-//         iowrite32(INT_RX, UART_INT_CLR);
+  if (IntStatus & UART_IIR_ID_RX) {
+    // data was received and is available in the receiver holding register
+    // ===================================================================
+    DataWord = ioread32(AUX_MU_IO_REG);
 
-//         // data was received and is available in the receiver holding register
-//         // ===================================================================
-//         DataWord = ioread32(UART_DATA);
-
-//         // see if the buffer will be full after this interrupt
-//         // ===================================================
-//         spin_lock(&SpinLock);
-//         RxNext = RxHead + 1;
-//         if (RxNext >= RX_BUFF_SIZE)
-//             RxNext = 0;
-
-//         if (RxNext != RxTail)
-//             {
-//             // data was received and is available in the receiver holding register
-//             // ===================================================================
-//             RxBuff[RxHead] = DataWord;
-//             RxHead = RxNext;
-// #ifdef IRQDEBUG
-//             printk(KERN_NOTICE "ttyebus: IRQ: One byte received. RxHead=%d, RxTail=%d", RxHead, RxTail);
-// #endif
-//             }
-
-//         else
-//             {
-//             // buffer overrun. do nothing. just discard the data.
-//             // eventually todo: if someone needs to know, we can throw an error here
-//             // =====================================================================
-// #ifdef IRQDEBUG
-//             printk(KERN_NOTICE "ttyebus: IRQ: Buffer overrun. RxHead=%d, RxTail=%d", RxHead, RxTail);
-// #endif
-//             }
-//         spin_unlock(&SpinLock);
-
-//         // clear any receiver error
-//         // ========================
-//         iowrite32(0, UART_RX_ERR);
-
-//         // if the calling task is waiting, wake him up. If there is no task at all, this is a NOP
-//         // ======================================================================================
-//         wake_up(&WaitQueue);
-//         }
-
-    // Transmitter
-    // ===========
-if (IntStatus & UART_IIR_ID_TX) {
-  // The transmitter holding register has become empty.
-  // see if some more data available
-  // ==================================================
-  spin_lock(&SpinLock);
-  if (TxTail < TxHead) {
-#ifdef IRQDEBUG
-    printk(KERN_NOTICE "ttyebus: IRQ: Transmitting one byte. TxHead=%d, TxTail=%d\n", TxHead, TxTail);
-#endif
-    // fill the transmitter holding register with new data
+    // see if the buffer will be full after this interrupt
     // ===================================================
-    DataWord = TxBuff[TxTail++];
-    iowrite32(DataWord, AUX_MU_IO_REG);
-    // (do nothing with the interrupt line - keep the UART_IER_TX_INT_ENABLE active)
-  } else {
+    spin_lock(&SpinLock);
+    RxNext = RxHead + 1;
+    if (RxNext >= RX_BUFF_SIZE)
+      RxNext = 0;
+
+    if (RxNext != RxTail) {
+      // data was received and is available in the receiver holding register
+      // ===================================================================
+      RxBuff[RxHead] = DataWord;
+      RxHead = RxNext;
 #ifdef IRQDEBUG
-    printk(KERN_NOTICE "ttyebus: IRQ: Stopping Tx Interrupt. TxHead=%d, TxTail=%d\n", TxHead, TxTail);
+      printk(KERN_NOTICE "ttyUart1: IRQ: One byte received. RxHead=%d, RxTail=%d", 
+              RxHead, RxTail);
 #endif
-    // no more data in the transmit buffer. disable the TX interrupt
-    // =============================================================
-    IntMask = ioread32(AUX_MU_IER_REG);
-    iowrite32(IntMask & ~UART_IER_TX_INT_ENABLE, AUX_MU_IER_REG);
+    } else {
+      // buffer overrun. do nothing. just discard the data.
+      // eventually todo: if someone needs to know, we can throw an error here
+      // =====================================================================
+#ifdef IRQDEBUG
+      printk(KERN_NOTICE "ttyUart1: IRQ: Buffer overrun. RxHead=%d, RxTail=%d", 
+              RxHead, RxTail);
+#endif
+    }
+    spin_unlock(&SpinLock);
+
+    // clear any receiver error
+    // ========================
+    IntStatus = ioread32(AUX_MU_LSR_REG);
+
+    // if the calling task is waiting, wake him up. If there is no task at all, this is a NOP
+    // ======================================================================================
+    wake_up(&WaitQueue);
   }
-  spin_unlock(&SpinLock);
-}
+
+  // Transmitter
+  // ===========
+  if (IntStatus & UART_IIR_ID_TX) {
+    // The transmitter holding register has become empty.
+    // see if some more data available
+    // ==================================================
+    spin_lock(&SpinLock);
+    if (TxTail < TxHead) {
+  #ifdef IRQDEBUG
+      printk(KERN_NOTICE "ttyUart1: IRQ: Transmitting one byte. TxHead=%d, TxTail=%d\n", TxHead, TxTail);
+  #endif
+      // fill the transmitter holding register with new data
+      // ===================================================
+      DataWord = TxBuff[TxTail++];
+      iowrite32(DataWord, AUX_MU_IO_REG);
+      // (do nothing with the interrupt line - keep the UART_IER_TX_INT_ENABLE active)
+    } else {
+  #ifdef IRQDEBUG
+      printk(KERN_NOTICE "ttyUart1: IRQ: Stopping Tx Interrupt. TxHead=%d, TxTail=%d\n", TxHead, TxTail);
+  #endif
+      // no more data in the transmit buffer. disable the TX interrupt
+      // =============================================================
+      IntMask = ioread32(AUX_MU_IER_REG);
+      iowrite32(IntMask & ~UART_IER_TX_INT_ENABLE, AUX_MU_IER_REG);
+    }
+    spin_unlock(&SpinLock);
+  }
 
 #ifdef IRQDEBUG
-    printk(KERN_NOTICE "ttyebus: IRQ %d exit. RxHead=%d, RxTail=%d, TxHead=%d, TxTail=%d\n", IrqCounter, RxHead, RxTail, TxHead, TxTail);
+    printk(KERN_NOTICE "ttyUart1: IRQ %d exit. RxHead=%d, RxTail=%d, TxHead=%d, TxTail=%d\n", IrqCounter, RxHead, RxTail, TxHead, TxTail);
     IrqCounter++;
 #endif
   return IRQ_HANDLED;
@@ -398,7 +372,7 @@ if (IntStatus & UART_IIR_ID_TX) {
 
 // ===============================================================================================
 //
-//                                    ttyebus_set_gpio_mode
+//                                    ttyUart1_set_gpio_mode
 //
 // ===============================================================================================
 //
@@ -413,7 +387,7 @@ if (IntStatus & UART_IIR_ID_TX) {
 //      connect the ports to the UART Rx and Tx
 //
 // ===============================================================================================
-static void ttyebus_set_gpio_mode(unsigned int Gpio, unsigned int Function) {
+static void ttyUart1_set_gpio_mode(unsigned int Gpio, unsigned int Function) {
   unsigned int RegOffset = (Gpio / 10) << 2;
   unsigned int Bit = (Gpio % 10) * 3;
   volatile unsigned int Value = ioread32(GpioAddr + RegOffset);
@@ -426,7 +400,7 @@ static void ttyebus_set_gpio_mode(unsigned int Gpio, unsigned int Function) {
 
 // ===============================================================================================
 //
-//                                    ttyebus_gpio_pullupdown
+//                                    ttyUart1_gpio_pullupdown
 //
 // ===============================================================================================
 //
@@ -440,7 +414,7 @@ static void ttyebus_set_gpio_mode(unsigned int Gpio, unsigned int Function) {
 //      Set the pull-up or pull-down at the specified GPIO port
 //
 // ===============================================================================================
-void ttyebus_gpio_pullupdown(unsigned int Gpio, unsigned int pud) {
+void ttyUart1_gpio_pullupdown(unsigned int Gpio, unsigned int pud) {
   // fill the new value for pull up or down
   // ======================================
   iowrite32(pud, GPIO_PULL);
@@ -460,7 +434,7 @@ void ttyebus_gpio_pullupdown(unsigned int Gpio, unsigned int pud) {
 
 // ===============================================================================================
 //
-//                                    ttyebus_poll
+//                                    ttyUart1_poll
 //
 // ===============================================================================================
 //
@@ -475,24 +449,24 @@ void ttyebus_gpio_pullupdown(unsigned int Gpio, unsigned int pud) {
 //      Probe the receiver if some data available. Return after timeout anyway.
 //
 // ===============================================================================================
-static unsigned int ttyebus_poll(struct file* file_ptr, poll_table* wait)
+static unsigned int ttyUart1_poll(struct file* file_ptr, poll_table* wait)
     {
 #ifdef DEBUG
-    printk(KERN_NOTICE "ttyebus: Poll request\n");
+    printk(KERN_NOTICE "ttyUart1: Poll request\n");
 #endif
 
     poll_wait(file_ptr, &WaitQueue, wait);
     if (RxTail != RxHead)
         {
 #ifdef DEBUG
-        printk(KERN_NOTICE "ttyebus: Poll succeeded. RxHead=%d, RxTail=%d\n", RxHead, RxTail);
+        printk(KERN_NOTICE "ttyUart1: Poll succeeded. RxHead=%d, RxTail=%d\n", RxHead, RxTail);
 #endif
         return POLLIN | POLLRDNORM;
         }
     else
         {
 #ifdef DEBUG
-        printk(KERN_NOTICE "ttyebus: Poll timeout\n");
+        printk(KERN_NOTICE "ttyUart1: Poll timeout\n");
 #endif
         return 0;
         }
@@ -501,7 +475,7 @@ static unsigned int ttyebus_poll(struct file* file_ptr, poll_table* wait)
 
 // ===============================================================================================
 //
-//                                    ttyebus_read
+//                                    ttyUart1_read
 //
 // ===============================================================================================
 //
@@ -516,69 +490,63 @@ static unsigned int ttyebus_poll(struct file* file_ptr, poll_table* wait)
 //
 // Description:
 //      Called when a process, which already opened the dev file, attempts to read from it, like
-//      "cat /dev/ttyebus"
+//      "cat /dev/ttyUart1"
 //
 // ===============================================================================================
-static ssize_t ttyebus_read(struct file* file_ptr, char __user* user_buffer, size_t Count, loff_t* offset)
-    {
-    unsigned int NumBytes;
-    unsigned int result;
-    unsigned long Flags;
-    enum { BUFFER_SIZE = 512 };
-    char buffer[BUFFER_SIZE];
+static ssize_t ttyUart1_read(struct file* file_ptr, 
+  char __user* user_buffer, size_t Count, loff_t* offset) {
+  
+  unsigned int NumBytes;
+  unsigned int result;
+  unsigned long Flags;
+  enum { BUFFER_SIZE = 512 };
+  char buffer[BUFFER_SIZE];
 
 #ifdef DEBUG
-    printk(KERN_NOTICE "ttyebus: Read request with offset=%d and count=%u\n", (int)*offset, (unsigned int)Count);
+  printk(KERN_NOTICE "ttyUart1: Read request with offset=%d and count=%u\n", 
+    (int)*offset, (unsigned int)Count);
 #endif
 
-//     // wait until a character is received or if timeout (1 min) occurs.
-//     // note that wait_event_timeout is a macro that will already avoid the race condition that may
-//     // happen where new data arrives between testing (RxTail != RxHead) and effective sleeping of this task.
-//     // =====================================================================================================
-//     result = wait_event_timeout(WaitQueue, RxTail != RxHead, msecs_to_jiffies(60000));
-//     if (result == 0)
-//         {
-// #ifdef DEBUG
-//         printk(KERN_NOTICE "ttyebus: Read timeout");
-// #endif
-//     return -EBUSY; // timeout
-//         }
+  result = wait_event_timeout(WaitQueue, RxTail != RxHead, msecs_to_jiffies(60000));
+  if (result == 0) {
+#ifdef DEBUG
+    printk(KERN_NOTICE "ttyUart1: Read timeout");
+#endif
+  return -EBUSY; // timeout
+  }
 
 // #ifdef IRQDEBUG
-//     printk(KERN_NOTICE "ttyebus: Read event. RxHead=%d, RxTail=%d", RxHead, RxTail);
+  printk(KERN_NOTICE "ttyUart1: Read event. RxHead=%d, RxTail=%d", RxHead, RxTail);
 // #endif
 
-//     // collect all bytes received so far from the receive buffer
-//     // we must convert from a ring buffer to a linear buffer
-//     // =========================================================
-//     NumBytes = 0;
-//     spin_lock_irqsave(&SpinLock, Flags);
-//     while (RxTail != RxHead && NumBytes < Count)
-//         {
-//         buffer[NumBytes++] = RxBuff[RxTail++];
-//         if (RxTail >= RX_BUFF_SIZE)
-//             RxTail = 0;
-//         }
-//     spin_unlock_irqrestore(&SpinLock, Flags);
+  // collect all bytes received so far from the receive buffer
+  // we must convert from a ring buffer to a linear buffer
+  // =========================================================
+  NumBytes = 0;
+  spin_lock_irqsave(&SpinLock, Flags);
+  while (RxTail != RxHead && NumBytes < Count) {
+    buffer[NumBytes++] = RxBuff[RxTail++];
+    if (RxTail >= RX_BUFF_SIZE)
+      RxTail = 0;
+  }
+  spin_unlock_irqrestore(&SpinLock, Flags);
 
-//     // copying data to user space requires a special function to be called
-//     // ===================================================================
-//     if (copy_to_user(user_buffer, buffer, Count) != 0)
-//         return -EFAULT;
-
-    NumBytes = 0;
+  // copying data to user space requires a special function to be called
+  // ===================================================================
+  if (copy_to_user(user_buffer, buffer, Count) != 0)
+    return -EFAULT;
 
 #ifdef DEBUG
-    printk(KERN_NOTICE "ttyebus: Read exit with %d bytes read\n", NumBytes);
+  printk(KERN_NOTICE "ttyUart1: Read exit with %d bytes read\n", NumBytes);
 #endif
 
-    return NumBytes;        // the number of bytes actually received
-    }
+  return NumBytes;        // the number of bytes actually received
+}
     
     
 // ===============================================================================================
 //
-//                                    ttyebus_write
+//                                    ttyUart1_write
 //
 // ===============================================================================================
 //
@@ -593,10 +561,10 @@ static ssize_t ttyebus_read(struct file* file_ptr, char __user* user_buffer, siz
 //
 // Description:
 //      Called when a process, which already opened the dev file, attempts to write to it, like
-//      "echo "hello" > /dev/ttyebus"
+//      "echo "hello" > /dev/ttyUart1"
 //
 // ===============================================================================================
-static ssize_t ttyebus_write(struct file* file_ptr, 
+static ssize_t ttyUart1_write(struct file* file_ptr, 
     const char __user* user_buffer, size_t Count, loff_t* offset) {
 
   int result;
@@ -606,10 +574,10 @@ static ssize_t ttyebus_write(struct file* file_ptr,
   unsigned int IntMask;
 
 #ifdef DEBUG
-  printk(KERN_NOTICE "ttyebus: Write request with offset=%d and count=%u\n", (int)*offset, (unsigned int)Count);
+  printk(KERN_NOTICE "ttyUart1: Write request with offset=%d and count=%u\n", (int)*offset, (unsigned int)Count);
 #endif
 #ifdef IRQDEBUG
-  printk(KERN_NOTICE "ttyebus: Write request. TxHead=%d, TxTail=%d\n", TxHead, TxTail);
+  printk(KERN_NOTICE "ttyUart1: Write request. TxHead=%d, TxTail=%d\n", TxHead, TxTail);
 #endif
 
   // if transmission is still in progress, wait until done
@@ -647,7 +615,7 @@ static ssize_t ttyebus_write(struct file* file_ptr,
   spin_unlock_irqrestore(&SpinLock, Flags);
 
 #ifdef DEBUG
-    printk(KERN_NOTICE "ttyebus: Write exit with %d bytes written\n", Count);
+    printk(KERN_NOTICE "ttyUart1: Write exit with %d bytes written\n", Count);
 #endif
 
     return Count;        // the number of bytes actually transmitted
@@ -657,7 +625,7 @@ static ssize_t ttyebus_write(struct file* file_ptr,
 
 // ===============================================================================================
 //
-//                                    ttyebus_open
+//                                    ttyUart1_open
 //
 // ===============================================================================================
 //
@@ -666,10 +634,10 @@ static ssize_t ttyebus_write(struct file* file_ptr,
 // Returns:
 //
 // Description:
-//      Called when a process tries to open the device file, like "cat /dev/ttyebus"
+//      Called when a process tries to open the device file, like "cat /dev/ttyUart1"
 //
 // ===============================================================================================
-static int ttyebus_open(struct inode* inode, struct file* file) {
+static int ttyUart1_open(struct inode* inode, struct file* file) {
   unsigned int UartCtrl;
   unsigned int UartEnable;
   unsigned int baudreg;
@@ -691,13 +659,13 @@ static int ttyebus_open(struct inode* inode, struct file* file) {
 
   // Setup the GPIO pin 14 && 15 to ALTERNATE 0 (connect to UART)
   // ============================================================
-  ttyebus_set_gpio_mode(15, GPIO_ALT_5);      // GPIO15 connected to RxD
-  ttyebus_set_gpio_mode(14, GPIO_ALT_5);      // GPIO14 connected to TxD
+  ttyUart1_set_gpio_mode(15, GPIO_ALT_5);      // GPIO15 connected to RxD
+  ttyUart1_set_gpio_mode(14, GPIO_ALT_5);      // GPIO14 connected to TxD
 
   // Set pull-down for the GPIO pin
   // ==============================
-  ttyebus_gpio_pullupdown(14, GPIO_PULL_UP);
-  ttyebus_gpio_pullupdown(15, GPIO_PULL_UP);
+  ttyUart1_gpio_pullupdown(14, GPIO_PULL_UP);
+  ttyUart1_gpio_pullupdown(15, GPIO_PULL_UP);
 
   // Enable mini UART and disable receive & transfer part of UART
   // ============================================================
@@ -716,15 +684,11 @@ static int ttyebus_open(struct inode* inode, struct file* file) {
   // ============
   // UART default frequency is 250.000.000
   baudreg = (CLOCK / (8 * BAUD_RATE)) - 1;
-  iowrite32(baudreg & 0x0000FFFF, AUX_MU_BAUD);
-  // iowrite32(UART_LCR_DLAB_ACCESS, AUX_MU_LCR_REG);
-  // iowrite32(baudreg & 0xFF, AUX_MU_IO_REG);
-  // iowrite32((baudreg >> 8) & 0xFF, AUX_MU_IIR_REG);
-  // iowrite32(0, AUX_MU_LCR_REG);
+  iowrite32(baudreg, AUX_MU_BAUD);
   
-  // Disable FIFO
-  // ============
-  // iowrite32(0, AUX_MU_IIR_REG);
+  // Clear FIFO
+  // ============ 
+  iowrite32(UART_IIR_FIFO_RX_CLR | UART_IIR_FIFO_TX_CLR, AUX_MU_IIR_REG);
 
   // 8-bit mode
   // ============================================
@@ -737,14 +701,10 @@ static int ttyebus_open(struct inode* inode, struct file* file) {
   // Enable UART0, receive & transfer part of UART
   // =============================================
   UartCtrl = UART_CNTL_RX_ENABLE | UART_CNTL_TX_ENABLE;
-#ifdef LOOPBACK
-  // TODO
-  UartCtrl |= UARTCR_LOOPBACK;
-#endif
   iowrite32(UartCtrl, AUX_MU_CNTL_REG);
 
 #ifdef DEBUG
-  printk(KERN_NOTICE "ttyebus: Open exit\n");
+  printk(KERN_NOTICE "ttyUart1: Open exit\n");
 #endif
 
   return 0;
@@ -753,7 +713,7 @@ static int ttyebus_open(struct inode* inode, struct file* file) {
 
 // ===============================================================================================
 //
-//                                    ttyebus_close
+//                                    ttyUart1_close
 //
 // ===============================================================================================
 //
@@ -765,7 +725,7 @@ static int ttyebus_open(struct inode* inode, struct file* file) {
 //      Called when a process closes the device file.
 //
 // ===============================================================================================
-static int ttyebus_close(struct inode *inode, struct file *file)
+static int ttyUart1_close(struct inode *inode, struct file *file)
 {
   printk(KERN_NOTICE "ttyUart1: Close at at major %d  minor %d\n", imajor(inode), iminor(inode));
 
@@ -783,7 +743,7 @@ static int ttyebus_close(struct inode *inode, struct file *file)
 
 // ===============================================================================================
 //
-//                                    ttyebus_ioctl
+//                                    ttyUart1_ioctl
 //
 // ===============================================================================================
 //
@@ -797,7 +757,7 @@ static int ttyebus_close(struct inode *inode, struct file *file)
 //      is working. So only return an OK status
 //
 // ===============================================================================================
-static long ttyebus_ioctl(struct file *fp, unsigned int cmd, unsigned long arg) 
+static long ttyUart1_ioctl(struct file *fp, unsigned int cmd, unsigned long arg) 
 {
   return 0;
 }
@@ -805,7 +765,7 @@ static long ttyebus_ioctl(struct file *fp, unsigned int cmd, unsigned long arg)
 
 // ===============================================================================================
 //
-//                                      ttyebus_raspi_model
+//                                      ttyUart1_raspi_model
 //
 // ===============================================================================================
 // Description:
@@ -814,7 +774,7 @@ static long ttyebus_ioctl(struct file *fp, unsigned int cmd, unsigned long arg)
 //      Extract the number and return it.
 //
 // ===============================================================================================
-unsigned int ttyebus_raspi_model(void)
+unsigned int ttyUart1_raspi_model(void)
 {
   struct file* filp = NULL;
   char buf[32];
@@ -860,7 +820,7 @@ unsigned int ttyebus_raspi_model(void)
 
 // ===============================================================================================
 //
-//                                    ttyebus_register
+//                                    ttyUart1_register
 //
 // ===============================================================================================
 //
@@ -875,7 +835,7 @@ unsigned int ttyebus_raspi_model(void)
 //      device name is given and the file_operations structure is also passed to the kernel.
 //
 // ===============================================================================================
-int ttyebus_register(void)
+int ttyUart1_register(void)
 {
   int result;
   unsigned int PeriBase;
@@ -887,7 +847,7 @@ int ttyebus_register(void)
 
   // Get the RASPI model
   // ===================
-  RaspiModel = ttyebus_raspi_model();
+  RaspiModel = ttyUart1_raspi_model();
   if (RaspiModel < 1 || RaspiModel > 4)
   {
     printk(KERN_NOTICE "ttyUart1: Unknown RASPI model %d\n", RaspiModel);
@@ -897,7 +857,7 @@ int ttyebus_register(void)
 
   // Dynamically allocate a major number for the device
   // ==================================================
-  MajorNumber = register_chrdev(0, DEVICE_NAME, &ttyebus_fops);
+  MajorNumber = register_chrdev(0, DEVICE_NAME, &ttyUart1_fops);
   if (MajorNumber < 0)
   {
     printk(KERN_WARNING "ttyUart1: can\'t register character device with errorcode = %i\n", MajorNumber);
@@ -937,9 +897,9 @@ int ttyebus_register(void)
   // =========================
   UartIrq = RASPI_3_UART1_IRQ;
   if (RaspiModel == 4)
-    result = request_irq(UartIrq, ttyebus_irq_handler, IRQF_SHARED, "ttyUart1_irq_handler", DEVICE_NAME);
+    result = request_irq(UartIrq, ttyUart1_irq_handler, IRQF_SHARED, "ttyUart1_irq_handler", DEVICE_NAME);
   else
-    result = request_irq(UartIrq, ttyebus_irq_handler, 0, "ttyUart1_irq_handler", NULL);
+    result = request_irq(UartIrq, ttyUart1_irq_handler, 0, "ttyUart1_irq_handler", NULL);
   if (result)
   {
     unregister_chrdev(MajorNumber, DEVICE_NAME);
@@ -960,7 +920,7 @@ int ttyebus_register(void)
     
 // ===============================================================================================
 //
-//                                    ttyebus_unregister
+//                                    ttyUart1_unregister
 //
 // ===============================================================================================
 // Parameter:
@@ -971,7 +931,7 @@ int ttyebus_register(void)
 //      Unmap the I/O, free the IRQ and unregister the device
 //
 // ===============================================================================================
-void ttyebus_unregister(void)
+void ttyUart1_unregister(void)
 {
   unsigned int UartIrq;
   unsigned int UartEnable;
@@ -1014,5 +974,5 @@ void ttyebus_unregister(void)
 //        get compilation errors.
 //
 // ===============================================================================================
-module_init(ttyebus_register);
-module_exit(ttyebus_unregister);
+module_init(ttyUart1_register);
+module_exit(ttyUart1_unregister);
