@@ -1,0 +1,20 @@
+/*******************************************************************************
+ * <@meta=.metablank>
+ ******************************************************************************/
+
+{
+    "tasks": [       
+        {
+            // NOTE: Build EXE only (no run): Ctrl + Shift + B
+            "label": "RPI | RLS | EXE",
+            "command": "${workspaceFolder}/build.sh",
+            "args": [],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+    ],
+    "version": "2.0.0"
+}

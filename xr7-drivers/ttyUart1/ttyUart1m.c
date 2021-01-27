@@ -62,10 +62,11 @@
 #include <linux/syscalls.h>
 #include <linux/fcntl.h>
 #include <linux/version.h>
+#include <uapi/asm-generic/ioctls.h>
 
-#define DEBUG 1                  // if uncommented, will write some debug messages to /var/log/kern.log
+// #define DEBUG 1                  // if uncommented, will write some debug messages to /var/log/kern.log
 #ifdef DEBUG
-// #define IRQDEBUG 1               // if uncommented, writes messages from the interrupt handler too (there are a lot of messages!)
+#define IRQDEBUG 1               // if uncommented, writes messages from the interrupt handler too (there are a lot of messages!)
 #endif
 
 // prototypes
@@ -76,6 +77,9 @@ static ssize_t ttyUart1_read(struct file* file_ptr, char __user* user_buffer, si
 static ssize_t ttyUart1_write(struct file* file_ptr, const char __user* user_buffer, size_t count, loff_t* offset);
 static long ttyUart1_ioctl(struct file* fp, unsigned int cmd, unsigned long arg);
 
+static void gpioInit(void);
+static void uartEnable(bool enable);
+
 #define DEVICE_NAME "ttyUart1"           // The device will appear at /dev/ttyUart1
 #define BAUD_RATE 38400
 
@@ -85,29 +89,27 @@ MODULE_DESCRIPTION("Kernel module for the minu UART");
 MODULE_VERSION("1.00");
 
 // file operations with this kernel module
-static struct file_operations ttyUart1_fops =
-    {
-    .owner          = THIS_MODULE,
-    .open           = ttyUart1_open,
-    .release        = ttyUart1_close,
-    .poll           = ttyUart1_poll,
-    .read           = ttyUart1_read,
-    .write          = ttyUart1_write,
-    .unlocked_ioctl = ttyUart1_ioctl
-    };
+static struct file_operations ttyUart1_fops = {
+  .owner          = THIS_MODULE,
+  .open           = ttyUart1_open,
+  .release        = ttyUart1_close,
+  .poll           = ttyUart1_poll,
+  .read           = ttyUart1_read,
+  .write          = ttyUart1_write,
+  .unlocked_ioctl = ttyUart1_ioctl
+};
 
-static struct miscdevice misc =
-    {
-    .minor = MISC_DYNAMIC_MINOR,
-    .name = DEVICE_NAME,
-    .fops = &ttyUart1_fops,
-    .mode = S_IRUSR |   // User read
-            S_IWUSR |   // User write
-            S_IRGRP |   // Group read
-            S_IWGRP |   // Group write
-            S_IROTH |   // Other read
-            S_IWOTH     // Other write
-    };
+static struct miscdevice misc = {
+  .minor = MISC_DYNAMIC_MINOR,
+  .name = DEVICE_NAME,
+  .fops = &ttyUart1_fops,
+  .mode = S_IRUSR |   // User read
+          S_IWUSR |   // User write
+          S_IRGRP |   // Group read
+          S_IWGRP |   // Group write
+          S_IROTH |   // Other read
+          S_IWOTH     // Other write
+};
 
 static unsigned int RaspiModel;
 static unsigned int MajorNumber;
@@ -258,7 +260,7 @@ static int IrqCounter = 0;
 //==============================================================================
 // use: printRegisters(__FUNCTION__)
 static void printRegisters(const char *info) {
-  printk(KERN_NOTICE "*** %s", info);
+  printk(KERN_NOTICE "*** %s\n", info);
   printk(KERN_NOTICE "ttyUart1: AUXENB %.8X\n", ioread32(AUXENB));
   printk(KERN_NOTICE "ttyUart1: AUX_MU_IER_REG %.8X\n", ioread32(AUX_MU_IER_REG));
   printk(KERN_NOTICE "ttyUart1: AUX_MU_IIR_REG %.8X\n", ioread32(AUX_MU_IIR_REG));
@@ -268,8 +270,8 @@ static void printRegisters(const char *info) {
   printk(KERN_NOTICE "ttyUart1: AUX_MU_MSR_REG %.8X\n", ioread32(AUX_MU_MSR_REG));
   printk(KERN_NOTICE "ttyUart1: AUX_MU_SCRATCH %d\n", ioread32(AUX_MU_SCRATCH));
   printk(KERN_NOTICE "ttyUart1: AUX_MU_CNTL_REG %.8X\n", ioread32(AUX_MU_CNTL_REG));
-  printk(KERN_NOTICE "ttyUart1: AUX_MU_STAT_REG %.8X\n", ioread32(AUX_MU_CNTL_REG));
-  printk(KERN_NOTICE "******");
+  printk(KERN_NOTICE "ttyUart1: AUX_MU_STAT_REG %.8X\n", ioread32(AUX_MU_STAT_REG));
+  printk(KERN_NOTICE "******\n");
 }
 
 //==============================================================================
@@ -286,10 +288,14 @@ static irqreturn_t ttyUart1_irq_handler(int irq, void* dev_id) {
   unsigned int RxNext;
   unsigned int NumBytes;
 
+  // printRegisters(__FUNCTION__);
+
 #ifdef IRQDEBUG
   printk(KERN_NOTICE "ttyUart1: IRQ %d called. RxHead=%d, RxTail=%d, TxHead=%d, TxTail=%d\n", 
           IrqCounter, RxHead, RxTail, TxHead, TxTail);
 #endif
+
+  // printk(KERN_NOTICE "ttyUart1: AUX_MU_STAT_REG %.8X\n", ioread32(AUX_MU_STAT_REG));
 
   IntStatus = ioread32(AUX_MU_IIR_REG) & UART_IIR_ID;
 
@@ -363,8 +369,9 @@ static irqreturn_t ttyUart1_irq_handler(int irq, void* dev_id) {
   }
 
 #ifdef IRQDEBUG
-    printk(KERN_NOTICE "ttyUart1: IRQ %d exit. RxHead=%d, RxTail=%d, TxHead=%d, TxTail=%d\n", IrqCounter, RxHead, RxTail, TxHead, TxTail);
-    IrqCounter++;
+  printk(KERN_NOTICE "ttyUart1: IRQ %d exit. RxHead=%d, RxTail=%d, TxHead=%d, TxTail=%d\n", 
+          IrqCounter, RxHead, RxTail, TxHead, TxTail);
+  IrqCounter++;
 #endif
   return IRQ_HANDLED;
 }
@@ -392,9 +399,8 @@ static void ttyUart1_set_gpio_mode(unsigned int Gpio, unsigned int Function) {
   unsigned int Bit = (Gpio % 10) * 3;
   volatile unsigned int Value = ioread32(GpioAddr + RegOffset);
 
-
   iowrite32((Value & ~(0x7 << Bit)) | ((Function & 0x7) << Bit), 
-    GpioAddr + RegOffset);
+            GpioAddr + RegOffset);
 }
 
 
@@ -449,28 +455,24 @@ void ttyUart1_gpio_pullupdown(unsigned int Gpio, unsigned int pud) {
 //      Probe the receiver if some data available. Return after timeout anyway.
 //
 // ===============================================================================================
-static unsigned int ttyUart1_poll(struct file* file_ptr, poll_table* wait)
-    {
+static unsigned int ttyUart1_poll(struct file* file_ptr, poll_table* wait) {
 #ifdef DEBUG
-    printk(KERN_NOTICE "ttyUart1: Poll request\n");
+  printk(KERN_NOTICE "ttyUart1: Poll request\n");
 #endif
 
-    poll_wait(file_ptr, &WaitQueue, wait);
-    if (RxTail != RxHead)
-        {
+  poll_wait(file_ptr, &WaitQueue, wait);
+  if (RxTail != RxHead) {
 #ifdef DEBUG
-        printk(KERN_NOTICE "ttyUart1: Poll succeeded. RxHead=%d, RxTail=%d\n", RxHead, RxTail);
+    printk(KERN_NOTICE "ttyUart1: Poll succeeded. RxHead=%d, RxTail=%d\n", RxHead, RxTail);
 #endif
-        return POLLIN | POLLRDNORM;
-        }
-    else
-        {
+    return POLLIN | POLLRDNORM;
+  } else {
 #ifdef DEBUG
-        printk(KERN_NOTICE "ttyUart1: Poll timeout\n");
+    printk(KERN_NOTICE "ttyUart1: Poll timeout\n");
 #endif
-        return 0;
-        }
-    }
+    return 0;
+  }
+}
 
 
 // ===============================================================================================
@@ -504,20 +506,23 @@ static ssize_t ttyUart1_read(struct file* file_ptr,
 
 #ifdef DEBUG
   printk(KERN_NOTICE "ttyUart1: Read request with offset=%d and count=%u\n", 
-    (int)*offset, (unsigned int)Count);
+          (int)*offset, (unsigned int)Count);
 #endif
 
   result = wait_event_timeout(WaitQueue, RxTail != RxHead, msecs_to_jiffies(60000));
+
+  // printRegisters(__FUNCTION__);
+
   if (result == 0) {
 #ifdef DEBUG
     printk(KERN_NOTICE "ttyUart1: Read timeout");
 #endif
-  return -EBUSY; // timeout
+    return -EBUSY; // timeout
   }
 
-// #ifdef IRQDEBUG
+#ifdef IRQDEBUG
   printk(KERN_NOTICE "ttyUart1: Read event. RxHead=%d, RxTail=%d", RxHead, RxTail);
-// #endif
+#endif
 
   // collect all bytes received so far from the receive buffer
   // we must convert from a ring buffer to a linear buffer
@@ -614,6 +619,8 @@ static ssize_t ttyUart1_write(struct file* file_ptr,
   iowrite32(IntMask | UART_IER_TX_INT_ENABLE, AUX_MU_IER_REG);
   spin_unlock_irqrestore(&SpinLock, Flags);
 
+  // printRegisters(__FUNCTION__);
+
 #ifdef DEBUG
     printk(KERN_NOTICE "ttyUart1: Write exit with %d bytes written\n", Count);
 #endif
@@ -657,20 +664,8 @@ static int ttyUart1_open(struct inode* inode, struct file* file) {
   RxTail = RxHead = 0;
   TxTail = TxHead = TX_BUFF_SIZE;
 
-  // Setup the GPIO pin 14 && 15 to ALTERNATE 0 (connect to UART)
+  // Disable receive & transfer part of UART
   // ============================================================
-  ttyUart1_set_gpio_mode(15, GPIO_ALT_5);      // GPIO15 connected to RxD
-  ttyUart1_set_gpio_mode(14, GPIO_ALT_5);      // GPIO14 connected to TxD
-
-  // Set pull-down for the GPIO pin
-  // ==============================
-  ttyUart1_gpio_pullupdown(14, GPIO_PULL_UP);
-  ttyUart1_gpio_pullupdown(15, GPIO_PULL_UP);
-
-  // Enable mini UART and disable receive & transfer part of UART
-  // ============================================================
-  UartEnable = ioread32(AUXENB);
-  iowrite32(UartEnable | UART_AUXENB_ENABLE, AUXENB);
   UartCtrl = ioread32(AUX_MU_CNTL_REG);
   UartCtrl &= ~(UART_CNTL_RX_ENABLE | UART_CNTL_TX_ENABLE);
   iowrite32(UartCtrl, AUX_MU_CNTL_REG);
@@ -725,17 +720,29 @@ static int ttyUart1_open(struct inode* inode, struct file* file) {
 //      Called when a process closes the device file.
 //
 // ===============================================================================================
-static int ttyUart1_close(struct inode *inode, struct file *file)
-{
+static int ttyUart1_close(struct inode *inode, struct file *file) {
+  unsigned int UartCtrl;
+  unsigned int UartEnable;
+
+#ifdef DEBUG
   printk(KERN_NOTICE "ttyUart1: Close at at major %d  minor %d\n", imajor(inode), iminor(inode));
+#endif
 
   DeviceOpen--;
 
+  // printRegisters(__FUNCTION__);
+
   // Disable UART1
   // =============
-  iowrite32(0, AUXENB);
+  iowrite32(UART_IIR_FIFO_RX_CLR | UART_IIR_FIFO_TX_CLR, AUX_MU_IIR_REG);
+  // ioread32(AUX_MU_LSR_REG);
+  UartCtrl = ioread32(AUX_MU_CNTL_REG);
+  UartCtrl &= ~(UART_CNTL_RX_ENABLE | UART_CNTL_TX_ENABLE);
+  iowrite32(UartCtrl, AUX_MU_CNTL_REG);
 
+#ifdef DEBUG
   printk(KERN_NOTICE "ttyUart1: Close exit\n");
+#endif
 
   return 0;
 }
@@ -757,9 +764,30 @@ static int ttyUart1_close(struct inode *inode, struct file *file)
 //      is working. So only return an OK status
 //
 // ===============================================================================================
-static long ttyUart1_ioctl(struct file *fp, unsigned int cmd, unsigned long arg) 
-{
-  return 0;
+static long ttyUart1_ioctl(struct file *fp, unsigned int cmd, unsigned long arg) {
+  int numbytes;
+  unsigned long Flags;
+  int ret = 0; /* -ENOIOCTLCMD; */
+
+  switch(cmd) {
+    case TIOCINQ: 
+      spin_lock_irqsave(&SpinLock, Flags);
+      if (RxTail > RxHead) {
+        numbytes = RxHead - RxTail + RX_BUFF_SIZE;
+      } else {
+        numbytes = RxHead - RxTail;
+      }
+      spin_unlock_irqrestore(&SpinLock, Flags);
+
+      // if (numbytes > 0)    
+      //     printk(KERN_NOTICE "ttyebus: ttyebus_ioctl, numbytes = %d\n", numbytes);
+
+      ret = put_user(numbytes, (unsigned int __user *) arg);
+    default:
+      break;    
+  }
+
+  return ret;
 }
 
 
@@ -769,13 +797,12 @@ static long ttyUart1_ioctl(struct file *fp, unsigned int cmd, unsigned long arg)
 //
 // ===============================================================================================
 // Description:
-//      Get the Rasperry Pi model number from /sys/firmware/devicetree/base/compatible. The string
+//      Get the Rasperry Pi model number from /sys/firmware/devicetree/base/model. The string
 //      has usually the form "Raspberry Pi 3 Model B Rev 1.2"
 //      Extract the number and return it.
 //
 // ===============================================================================================
-unsigned int ttyUart1_raspi_model(void)
-{
+unsigned int ttyUart1_raspi_model(void) {
   struct file* filp = NULL;
   char buf[32];
   unsigned int NumBytes = 0;
@@ -788,7 +815,7 @@ unsigned int ttyUart1_raspi_model(void)
 
   // read the file
   // =============
-  filp = filp_open("/sys/firmware/devicetree/base/compatible", O_RDONLY, 0);
+  filp = filp_open("/sys/firmware/devicetree/base/model", O_RDONLY, 0);
   if (filp == NULL)
   {
     set_fs(old_fs);
@@ -803,38 +830,24 @@ unsigned int ttyUart1_raspi_model(void)
 
   // interpret the data from the file
   // ================================
-  if (NumBytes < 13)
+  if (NumBytes < 13) {
     return 0;
+  } 
+  
+  if ((NumBytes >= 29) && (buf[28] == '3')) {
+    return 3;
+  }
 
-  return 3;
-
-  switch(buf[12])
-  {
+  switch(buf[12]) {
     case '2' : return 2; break;
     case '3' : return 3; break;
     case '4' : return 4; break;
-    default: return 1;
   }
+
+  return 1;
 }
 
-
-// ===============================================================================================
-//
-//                                    ttyUart1_register
-//
-// ===============================================================================================
-//
-// Parameter:
-//
-// Returns:
-//      Major Number of the driver
-//
-// Description:
-//      Register the device to the kernel by use of the register-chrdev(3) call. Since the first
-//      parameter to this call is 0, the system will assign a Major Number by itself. A
-//      device name is given and the file_operations structure is also passed to the kernel.
-//
-// ===============================================================================================
+// =============================================================================
 int ttyUart1_register(void)
 {
   int result;
@@ -910,6 +923,9 @@ int ttyUart1_register(void)
 
   DeviceOpen = 0;
 
+  gpioInit();
+  uartEnable(true);
+
 #ifdef DEBUG
    printk(KERN_INFO "ttyUart1: device created correctly\n");
 #endif
@@ -934,12 +950,12 @@ int ttyUart1_register(void)
 void ttyUart1_unregister(void)
 {
   unsigned int UartIrq;
-  unsigned int UartEnable;
 
   printk(KERN_NOTICE "ttyUart1: unregister_device()");
 
-  UartEnable = ioread32(AUXENB);
-  iowrite32(UartEnable & ~UART_AUXENB_ENABLE, AUXENB);
+  // printRegisters(__FUNCTION__);
+  
+  uartEnable(false);
 
   // release the mapping
   if (GpioAddr)
@@ -959,6 +975,37 @@ void ttyUart1_unregister(void)
   MajorNumber = 0;
 }
 
+// =============================================================================
+void gpioInit(void) {
+  // Setup the GPIO pin 14 && 15 to ALTERNATE 0 (connect to UART)
+  // ============================================================
+  ttyUart1_set_gpio_mode(15, GPIO_ALT_5);      // GPIO15 connected to RxD
+  ttyUart1_set_gpio_mode(14, GPIO_ALT_5);      // GPIO14 connected to TxD
+
+  // Set pull-down for the GPIO pin
+  // ==============================
+  ttyUart1_gpio_pullupdown(14, GPIO_PULL_UP);
+  ttyUart1_gpio_pullupdown(15, GPIO_PULL_UP);
+}
+
+// ============================================================================= 
+void uartEnable(bool enable) {
+  unsigned int UartEnable;
+  unsigned int UartCntl;
+
+  UartEnable = ioread32(AUXENB);
+
+  UartCntl = ioread32(AUX_MU_CNTL_REG);
+  UartCntl &= ~(UART_CNTL_RX_ENABLE | UART_CNTL_TX_ENABLE);
+
+  if (enable) {
+    iowrite32(UartEnable | UART_AUXENB_ENABLE, AUXENB);
+    iowrite32(UartCntl, AUX_MU_CNTL_REG);
+  } else {
+    iowrite32(UartCntl, AUX_MU_CNTL_REG);
+    iowrite32(UartEnable & ~UART_AUXENB_ENABLE, AUXENB);
+  }
+}
 
 // ===============================================================================================
 //
