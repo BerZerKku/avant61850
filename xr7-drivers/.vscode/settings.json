@@ -6,6 +6,9 @@
     // "C_Cpp.loggingLevel":"Debug",
     "editor.rulers": [80,120],
     "editor.fontSize": 13,
+    // "editor.tabSize": 4,
+    // "editor.insertSpaces": true,
+    // "editor.detectIndentation": false,
     "files.associations": {
         "iostream": "cpp",
         "array": "cpp",

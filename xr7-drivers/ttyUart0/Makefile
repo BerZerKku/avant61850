@@ -5,7 +5,7 @@
 # 
 #
 ###################################################################
-TARGET_MODULE:=ttyebus
+TARGET_MODULE:=ttyUart0
 TARGET_DIR:=/lib/modules/$(shell uname -r)/kernel/drivers/tty/serial
 
 # If we running by kernel building system
