@@ -58,7 +58,7 @@ static ssize_t ttyUart1_write(struct file* file_ptr,
 static long ttyUart1_ioctl(struct file* fp, unsigned int cmd, unsigned long arg);
 static unsigned int getRaspiModel(void);
 
-static void init_gpio(void);
+static int init_gpio(bool enable);
 static void set_gpio_mode(unsigned int Gpio, unsigned int Function);
 static void set_gpio_pullupdown(unsigned int Gpio, unsigned int pud);
 
@@ -72,6 +72,12 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Bear");
 MODULE_DESCRIPTION("Kernel module for the minu UART");
 MODULE_VERSION("1.00");
+
+static char ConnectToBVP[] = "BVP";
+static char ConnectToBSP[] = "BSP";
+static char *ConnectTo = ConnectToBSP;
+module_param(ConnectTo, charp, 0444);
+MODULE_PARM_DESC(ConnectTo, " Connect " DEVICE_NAME " to 'BSP' or 'BVP'");
 
 // file operations with this kernel module
 static struct file_operations ttyUart1_fops = {
@@ -224,26 +230,55 @@ unsigned int send_data_to_tx_fifo(void) {
 	unsigned int DataWord;
 	unsigned int Count = 0;
 
-	while (	(TxTail < TxHead) &&
-			(ioread32(AUX_MU_LSR_REG) & UART_LSR_TX_EMPTY)) {
+	while (	(TxTail < TxHead) && 
+			(ioread32(AUX_MU_STAT_REG) & UART_STAT_TX_SPACE_AVL)) {
 		DataWord = TxBuff[TxTail++];
     	iowrite32(DataWord, AUX_MU_IO_REG);
 		Count++;
 	}
 
-	P_IRQ_DEBUG(" : send %d bytes\n", Count);
+	P_IRQ_DEBUG(KERN_WARNING DEVICE_NAME " : send %d bytes\n", Count);
 	return Count;
 }
 
 /**
  * 
  */ 
-void init_gpio(void) {
-    set_gpio_mode(15, GPIO_ALT_5); 
-    set_gpio_mode(14, GPIO_ALT_5);
+int init_gpio(bool enable) {
+    static unsigned int gpioTx = 0;
+    static unsigned int gpioRx = 0;
 
-    set_gpio_pullupdown(14, GPIO_PULL_UP);
-    set_gpio_pullupdown(15, GPIO_PULL_UP);
+    unsigned int function = 0;
+    unsigned int pull = GPIO_PULL_UP;
+
+    if (!enable) {
+        pull = GPIO_PULL_OFF;
+        function = GPIO_INPUT;
+    } else if (strcmp(ConnectTo, ConnectToBSP) == 0) {
+        gpioTx = 14;
+        gpioRx = 15;
+        function = GPIO_ALT_5;
+    } else if (strcmp(ConnectTo, ConnectToBVP) == 0) {
+        gpioTx = 32;
+        gpioRx = 33;
+        function = GPIO_ALT_5;
+    } else {
+        return -1;
+    }
+
+    if (gpioTx != 0) {
+        set_gpio_mode(gpioTx, function);
+        set_gpio_pullupdown(gpioTx, pull);
+    }
+
+    if (gpioRx != 0) {
+        set_gpio_mode(gpioRx, function);
+        set_gpio_pullupdown(gpioRx, pull);
+    }
+
+    printk(KERN_NOTICE DEVICE_NAME " : Connect to %s\n", ConnectTo);
+
+    return 0;
 }
 
 /**
@@ -529,7 +564,8 @@ int ttyUart1_register(void) {
     model = getRaspiModel();
     if (model < 3 || model > 4) {
         printk(KERN_NOTICE DEVICE_NAME " : Unknown RASPI model %d\n", model);
-        return -EFAULT;
+        result = -EFAULT;
+        goto err_model;
     }
     printk(KERN_NOTICE DEVICE_NAME " : Found RASPI model %d\n", model);
 
@@ -537,7 +573,8 @@ int ttyUart1_register(void) {
     if (MajorNumber < 0) {
         printk(KERN_WARNING DEVICE_NAME 
 				" : can\'t register character device with errorcode = %i\n", MajorNumber);
-        return MajorNumber;
+        result = MajorNumber;
+        goto err_model;
     }
 
     P_DEBUG("registered character device with major number = %i and minor numbers 0...255\n", MajorNumber);
@@ -546,12 +583,18 @@ int ttyUart1_register(void) {
     if (result) {
         unregister_chrdev(MajorNumber, DEVICE_NAME);
         printk(KERN_ALERT DEVICE_NAME " : Failed to create the device\n");
-        return result;
+        goto err_misc;
     }
 
     PeriBase = (model == 3) ?  RASPI_3_PERI_BASE : RASPI_4_PERI_BASE;
     GpioAddr = ioremap(PeriBase + GPIO_BASE, SZ_4K);
     UartAddr = ioremap(PeriBase + UART1_BASE, SZ_4K);
+
+    if (init_gpio(true) != 0) {
+        printk(KERN_ALERT "ttyUart0: Invalid value of parameter 'ConnectTo': %s\n", ConnectTo);
+        result = -EINVAL;
+        goto err_gpio;
+    }
 
     init_waitqueue_head(&WaitQueue);
 
@@ -569,16 +612,27 @@ int ttyUart1_register(void) {
     if (result) {
         unregister_chrdev(MajorNumber, DEVICE_NAME);
         printk(KERN_ALERT DEVICE_NAME " : Failed to request IRQ %d\n", UartIrq);
-        return result;
+        goto err_irq;
     }
     printk(KERN_INFO DEVICE_NAME " : Successfully requested IRQ %d\n", UartIrq);
 
     DeviceOpen = 0;
 
-    // init_gpio();
     uartEnable(true);
 
     P_DEBUG("device created correctly\n");
+
+    return 0;
+
+err_irq:
+    init_gpio(false);
+err_gpio:
+    iounmap(GpioAddr);
+    iounmap(UartAddr);
+    misc_deregister(&misc);
+err_misc:
+    unregister_chrdev(MajorNumber, DEVICE_NAME);
+err_model:
 
     return result;
 }
@@ -591,6 +645,7 @@ void ttyUart1_unregister(void) {
     printk(KERN_NOTICE DEVICE_NAME " : unregister_device()");
     
     uartEnable(false);
+    init_gpio(false);
 
     if (GpioAddr)
         iounmap(GpioAddr);

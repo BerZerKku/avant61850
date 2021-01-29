@@ -1,11 +1,11 @@
 # Makefile for building drivers.
 
 SUBDIRS = \
+	ttyUart0 \
+ 	ttyUart1 \
 	flx_bus flx_bus_i2c flx_bus_mdio \
 	flx_time flx_frtc flx_frs flx_xrs flx_i2c_mdio \
-	flx_gpio flx_i2c_gpio flx_fpts dp83848 m88e1512 \
-	ttyUart0 ttyUart1
-# 	8250
+	flx_gpio flx_i2c_gpio flx_fpts dp83848 m88e1512
 
 $(SUBDIRS): export CONFIG_FLX_BUS=y
 
