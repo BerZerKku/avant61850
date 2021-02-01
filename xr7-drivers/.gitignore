@@ -7,6 +7,8 @@
 *.mod.*
 *.mod
 
+build-*/
+
 !drivers/release/3.18.11/*
 !drivers/release/3.18.11-rt6/*
 !drivers/release/3.18.y/*
