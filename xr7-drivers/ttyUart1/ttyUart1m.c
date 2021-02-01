@@ -73,11 +73,11 @@ MODULE_AUTHOR("Bear");
 MODULE_DESCRIPTION("Kernel module for the minu UART");
 MODULE_VERSION("1.00");
 
-static char ConnectToBVP[] = "BVP";
-static char ConnectToBSP[] = "BSP";
-static char *ConnectTo = ConnectToBSP;
-module_param(ConnectTo, charp, 0444);
-MODULE_PARM_DESC(ConnectTo, " Connect " DEVICE_NAME " to 'BSP' or 'BVP'");
+static char connectBVP[] = "BVP";
+static char connectBSP[] = "BSP";
+static char *connect = connectBSP;
+module_param(connect, charp, S_IRUGO);
+MODULE_PARM_DESC(connect, " Connect " DEVICE_NAME " to 'BSP' or 'BVP'");
 
 // file operations with this kernel module
 static struct file_operations ttyUart1_fops = {
@@ -254,11 +254,11 @@ int init_gpio(bool enable) {
     if (!enable) {
         pull = GPIO_PULL_OFF;
         function = GPIO_INPUT;
-    } else if (strcmp(ConnectTo, ConnectToBSP) == 0) {
+    } else if (strcmp(connect, connectBSP) == 0) {
         gpioTx = 14;
         gpioRx = 15;
         function = GPIO_ALT_5;
-    } else if (strcmp(ConnectTo, ConnectToBVP) == 0) {
+    } else if (strcmp(connect, connectBVP) == 0) {
         gpioTx = 32;
         gpioRx = 33;
         function = GPIO_ALT_5;
@@ -276,7 +276,7 @@ int init_gpio(bool enable) {
         set_gpio_pullupdown(gpioRx, pull);
     }
 
-    printk(KERN_NOTICE DEVICE_NAME " : Connect to %s\n", ConnectTo);
+    printk(KERN_NOTICE DEVICE_NAME ": Connect to %s\n", connect);
 
     return 0;
 }
@@ -591,7 +591,7 @@ int ttyUart1_register(void) {
     UartAddr = ioremap(PeriBase + UART1_BASE, SZ_4K);
 
     if (init_gpio(true) != 0) {
-        printk(KERN_ALERT "ttyUart0: Invalid value of parameter 'ConnectTo': %s\n", ConnectTo);
+        printk(KERN_ALERT "ttyUart0: Invalid value of parameter 'connect': %s\n", connect);
         result = -EINVAL;
         goto err_gpio;
     }
