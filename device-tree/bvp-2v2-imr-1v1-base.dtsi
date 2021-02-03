@@ -1,10 +1,3 @@
-/ {
-	aliases {
-		mdio-gpio1 = &mdio1;
-		mdio-gpio2 = &mdio2;
-		mdio-gpio3 = &mdio3;
-	};
-};
 
 / {
 	__overrides__ {
@@ -12,59 +5,7 @@
 	};
 };
 
-&gpio {
-	
-	mdio1_pins: mdio1 {
-		brcm,pins = <23 22>;		/* MDC, MDIO */
-		brcm,function = <1 0>;
-	};
-
-	mdio2_pins: mdio2 {
-		brcm,pins = <17 16>;		/* MDC, MDIO */
-		brcm,function = <1 0>;
-	};
-
-	mdio3_pins: mdio3 {
-		brcm,pins = <5 4>;		/* MDC, MDIO */
-		brcm,function = <1 0>;
-	};
-};
-
 &soc {
-
-	mdio1: mdio1 {
-		compatible = "virtual,mdio-gpio";
-		#address-cells = <1>;
-		#size-cells = <0>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&mdio1_pins>;
-		/* MDC and MDIO, in that order */
-		gpios = <&gpio 23 0
-			 &gpio 22 0>;
-	};
-
-	mdio2: mdio2 {
-		compatible = "virtual,mdio-gpio";
-		#address-cells = <1>;
-		#size-cells = <0>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&mdio2_pins>;
-		/* MDC and MDIO, in that order */
-		gpios = <&gpio 17 0
-			 &gpio 16 0>;
-	};
-
-	mdio3: mdio3 {
-		compatible = "virtual,mdio-gpio";
-		#address-cells = <1>;
-		#size-cells = <0>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&mdio3_pins>;
-		/* MDC and MDIO, in that order */
-		gpios = <&gpio 5 0
-			 &gpio 4 0>;
-	};
-
 	/* GPIO LEDs accessed via I2C. */
 	leds_i2c: leds_i2c {
 		compatible = "gpio-leds";

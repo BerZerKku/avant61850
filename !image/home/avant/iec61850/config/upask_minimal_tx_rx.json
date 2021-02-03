@@ -28,10 +28,10 @@
                 "serial": {
                     "meta": [
                         "для HOST - /dev/tty0",
-                        "для RPi  - /dev/ttyAMA0"
+                        "для RPi  - /dev/ttyUart1"
                     ],
                     "===port_name": "/dev/tty0",
-                    "port_name": "/dev/ttyAMA0",
+                    "port_name": "/dev/ttyUart1",
                     "baud_rate": 38400,
                     "msg_level": 1
                 }

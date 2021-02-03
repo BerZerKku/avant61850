@@ -126,7 +126,6 @@ alias symbol:cryptd_free_ahash cryptd
 alias symbol:extcon_get_extcon_dev extcon_class
 alias symbol:nf_ct_helper_expectfn_find_by_symbol nf_conntrack
 alias symbol:cdc_ncm_rx_fixup cdc_ncm
-alias symbol:serial8250_tx_chars 8250
 alias symbol:usbip_stop_eh usbip_core
 alias symbol:rfkill_pause_polling rfkill
 alias symbol:nf_conntrack_in nf_conntrack
@@ -138,7 +137,6 @@ alias symbol:usb_wwan_tiocmget usb_wwan
 alias symbol:cast_s3 cast_common
 alias symbol:private_AES_set_encrypt_key aes_arm
 alias symbol:nf_ct_l3proto_register nf_conntrack
-alias symbol:serial8250_do_shutdown 8250
 alias symbol:register_ip_vs_scheduler ip_vs
 alias symbol:nf_conntrack_helper_register nf_conntrack
 alias symbol:__nf_conntrack_helper_find nf_conntrack
@@ -191,10 +189,8 @@ alias symbol:xt_proto_init x_tables
 alias symbol:usb_wwan_close usb_wwan
 alias symbol:nf_ct_l4proto_find_get nf_conntrack
 alias symbol:nf_ct_remove_expectations nf_conntrack
-alias symbol:serial8250_suspend_port 8250
 alias symbol:extcon_register_notifier extcon_class
 alias symbol:dlm_posix_unlock dlm
-alias symbol:serial8250_handle_irq 8250
 alias symbol:xt_request_find_target x_tables
 alias symbol:nf_nat_packet nf_nat
 alias symbol:synth_add speakup
@@ -222,7 +218,6 @@ alias symbol:nf_conntrack_tuple_taken nf_conntrack
 alias symbol:roccat_connect hid_roccat
 alias symbol:extcon_find_cable_index extcon_class
 alias symbol:synth_remove speakup
-alias symbol:serial8250_register_8250_port 8250
 alias symbol:nf_ct_port_nlattr_tuple_size nf_conntrack
 alias symbol:roccat_common2_send hid_roccat_common
 alias symbol:ip_set_elem_len ip_set
@@ -331,7 +326,6 @@ alias symbol:cryptd_alloc_aead cryptd
 alias symbol:xz_dec_reset xz_dec
 alias symbol:devm_extcon_dev_allocate extcon_class
 alias symbol:roccat_common2_device_init_struct hid_roccat_common
-alias symbol:serial8250_get_port 8250
 alias symbol:gf128mul_64k_bbe gf128mul
 alias symbol:nf_conntrack_broadcast_help nf_conntrack_broadcast
 alias symbol:__nf_ct_refresh_acct nf_conntrack
@@ -352,7 +346,6 @@ alias symbol:spk_do_catch_up speakup
 alias symbol:bcma_chipco_get_alp_clock bcma
 alias symbol:crypto_sha256_update sha256_generic
 alias symbol:synth_request_region speakup
-alias symbol:serial8250_do_set_termios 8250
 alias symbol:xz_dec_run xz_dec
 alias symbol:nf_ct_expect_find_get nf_conntrack
 alias symbol:ssb_bus_resume ssb
@@ -368,7 +361,6 @@ alias symbol:nf_conntrack_register_notifier nf_conntrack
 alias symbol:input_ff_create_memless ff_memless
 alias symbol:nf_defrag_ipv6_enable nf_defrag_ipv6
 alias symbol:extcon_get_cable_state_ extcon_class
-alias symbol:serial8250_modem_status 8250
 alias symbol:AES_encrypt aes_arm
 alias symbol:usbip_dump_urb usbip_core
 alias symbol:nf_ct_expect_related_report nf_conntrack
@@ -392,7 +384,6 @@ alias symbol:nf_ct_alloc_hashtable nf_conntrack
 alias symbol:bcma_chipco_pll_read bcma
 alias symbol:ip6t_register_table ip6_tables
 alias symbol:usbnet_cdc_status cdc_ether
-alias symbol:serial8250_rx_chars 8250
 alias symbol:usb_wwan_open usb_wwan
 alias symbol:usbip_pad_iso usbip_core
 alias symbol:nf_conntrack_find_get nf_conntrack
@@ -403,7 +394,6 @@ alias symbol:nf_conntrack_flush_report nf_conntrack
 alias symbol:bcma_core_set_clockmode bcma
 alias symbol:ct_sip_parse_header_uri nf_conntrack_sip
 alias symbol:dlm_posix_lock dlm
-alias symbol:serial8250_unregister_port 8250
 alias symbol:ssb_admatch_base ssb
 alias symbol:nf_nat_l4proto_in_range nf_nat
 alias symbol:cdc_ncm_rx_verify_nth16 cdc_ncm
@@ -466,7 +456,6 @@ alias symbol:devm_lcd_device_register lcd
 alias symbol:xt_register_table x_tables
 alias symbol:bcma_core_pci_up bcma
 alias symbol:ip_set_type_register ip_set
-alias symbol:serial8250_do_startup 8250
 alias symbol:ip_set_range_to_cidr ip_set
 alias symbol:generic_rndis_bind rndis_host
 alias symbol:crc7_be_syndrome_table crc7
@@ -485,8 +474,6 @@ alias symbol:nfnl_unlock nfnetlink
 alias symbol:bcma_chipco_gpio_control bcma
 alias symbol:spk_serial_release speakup
 alias symbol:synth_release_region speakup
-alias symbol:serial8250_set_isa_configurator 8250
-alias symbol:serial8250_resume_port 8250
 alias symbol:devm_extcon_dev_free extcon_class
 alias symbol:nf_nat_mangle_udp_packet nf_nat
 alias symbol:speakup_event speakup
@@ -512,7 +499,6 @@ alias symbol:ip_vs_conn_out_get ip_vs
 alias symbol:ipt_unregister_table ip_tables
 alias symbol:zlib_deflateReset zlib_deflate
 alias symbol:nf_reject_ip_tcphdr_get nf_reject_ipv4
-alias symbol:serial8250_do_pm 8250
 alias symbol:usbnet_cdc_unbind cdc_ether
 alias symbol:nf_connlabels_replace nf_conntrack
 alias symbol:nf_conntrack_l4proto_tcp6 nf_conntrack
@@ -532,7 +518,6 @@ alias symbol:dlm_new_lockspace dlm
 alias symbol:ip_set_name_byindex ip_set
 alias symbol:usbip_pack_pdu usbip_core
 alias symbol:ip_set_get_extensions ip_set
-alias symbol:serial8250_clear_and_reinit_fifos 8250
 alias symbol:crc_ccitt_table crc_ccitt
 alias symbol:ip_set_nfnl_put ip_set
 alias symbol:arpt_register_table arp_tables

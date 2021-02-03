@@ -32,7 +32,6 @@ kernel/crypto/authenc.ko
 kernel/crypto/authencesn.ko
 kernel/drivers/video/backlight/lcd.ko
 kernel/drivers/video/backlight/gpio_backlight.ko
-kernel/drivers/tty/serial/8250/8250.ko
 kernel/drivers/char/hw_random/bcm2708-rng.ko
 kernel/drivers/base/regmap/regmap-i2c.ko
 kernel/drivers/base/regmap/regmap-spi.ko

@@ -12,7 +12,6 @@
 		i2c0 = &i2c0;
 		i2c1 = &i2c1;
 		i2s  = &i2s;
-		gpio = &gpio;
 		intc = &intc;
 		leds = &leds;
 		sound = &sound;

@@ -4,4 +4,12 @@
     <address>192.168.7.111</address>
     <netmask>24</netmask>
   </iface>
+  <iface name="SE11">
+    <address>192.168.8.111</address>
+    <netmask>24</netmask>
+  </iface>
+  <iface name="SE21">
+    <address>192.168.9.111</address>
+    <netmask>24</netmask>
+  </iface>
 </ip>

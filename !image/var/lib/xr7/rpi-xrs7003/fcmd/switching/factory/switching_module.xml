@@ -4,4 +4,12 @@
     <port name="CE01"/>
     <port name="CE02"/>
   </switch>
+  <switch name="SE11">
+    <port name="CE11"/>
+    <port name="CE12"/>
+  </switch>
+  <switch name="SE21">
+    <port name="CE21"/>
+    <port name="CE22"/>
+  </switch>
 </switching>

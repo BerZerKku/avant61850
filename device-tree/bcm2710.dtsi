@@ -11,20 +11,20 @@
 		bootargs = "";
 	};
 
-	soc: soc {
+	soc: soc@7e000000 {
 		compatible = "simple-bus";
 		#address-cells = <1>;
 		#size-cells = <1>;
 		ranges = <0x7e000000 0x3f000000 0x01000000>;
 
-		intc: interrupt-controller {
+		intc: interrupt-controller@7e00b200 {
 			compatible = "brcm,bcm2708-armctrl-ic";
 			reg = <0x7e00b200 0x200>;
 			interrupt-controller;
 			#interrupt-cells = <2>;
 		};
 
-		gpio: gpio {
+		gpio: gpio@7e200000 {
 			compatible = "brcm,bcm2835-gpio";
 			reg = <0x7e200000 0xb4>;
 			interrupts = <2 17>, <2 18>;
@@ -92,7 +92,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		clk_i2c: i2c {
+		clk_i2c: i2c@1 {
 			compatible = "fixed-clock";
 			reg = <1>;
 			#clock-cells = <0>;

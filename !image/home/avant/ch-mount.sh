@@ -9,6 +9,9 @@ function mnt() {
 	mount -o bind /home/avant/bvp ${2}/root/bvp
 	mkdir -p ${2}/root/iec61850
 	mount -o bind /home/avant/iec61850 ${2}/root/iec61850
+	mkdir -p ${2}/root/other
+	mount -o bind /home/avant/other ${2}/root/other
+
 }
 
 function umnt() {
@@ -18,6 +21,7 @@ function umnt() {
 	umount ${2}/dev
 	umount ${2}/root/bvp
 	umount ${2}/root/iec61850
+	umount ${2}/root/other
 }
 
 if [ "$1" == "-m" ] && [ -n "$2" ]; then

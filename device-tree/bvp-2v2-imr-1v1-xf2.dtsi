@@ -1,29 +1,29 @@
-// bus/platform/devices/0.xrs
+/ {
+	aliases {
+		mdio-gpio2 = &mdio2;
+	};
+};
+
 &i2c0 {
-    /* Access to XRS via I2C */
+    // Access to XRS via I2C, address 0x34
     flx_bus_i2c_2: flx_bus@34 {
         #address-cells = <1>;
         #size-cells = <1>;
         compatible = "flx,bus-i2c";
-        /* Possible addresses: 0x24 / 0x34 / 0x64 / 0x74 */
         reg = <0x34>;
 
         xrs_2@0 {
             compatible = "flx,xrs";
             reg = <0x0 0xa>;
 
-            /* The following could be used instead of flx_xrs_guard. */
-
-            /* GPIO signal for power OK, optional */
-//            power-ok = <&gpio 42 0>;
-
-            /* GPIO signal for reset, optional */
+            // The following could be used instead of flx_xrs_guard. 
+            // GPIO signal for power OK, optional
+            // power-ok = <&gpio 42 0>;
+            // GPIO signal for reset, optional 
             reset = <&gpio 44 0>;
-
-            /* Interrupt to enable via sysfs, optional */            
+            // Interrupt to enable via sysfs, optional           
             interrupt-parent = <&gpio>;
-            interrupts = <18 8>;
-            
+            interrupts = <18 8>;             
         };
 
         flx_gpio_behind_i2c_2: gpio_2@10000 {
@@ -35,82 +35,82 @@
             width = <0x14>;
         };
 
-        rtc_2@280000 {
-            compatible = "flx,rtc";
-            reg = <0x280000 0x10000>;
-            /* Step size in nanoseconds and subnanoseconds */
-            step-size = <8 0>;
-        };
+        // rtc_2@280000 {
+        //     compatible = "flx,rtc";
+        //     reg = <0x280000 0x10000>;
+        //     // Step size in nanoseconds and subnanoseconds
+        //     step-size = <8 0>;
+        // };
 
         rs_behind_i2c_2: rs_2@300000 {
             #address-cells = <1>;
             #size-cells = <1>;
             compatible = "flx,rs";
-            /* Switch registers */
+            // Switch registers
             reg = <0x300000 0x8000>;
             interrupt-parent = <&gpio>;
             interrupts = <18 8>;
             mac_name = "xf2";
-            port0 {
-                if_name = "SE21";
-                /* 0=none 1=SFP 2=PHY 5=NOPHY */
+            port0@200000 {
+                if_name = "SE11";
+                // 0=none 1=SFP 2=PHY 5=NOPHY
                 medium_type = <2>;
                 cpu-port;
-                /* port and port adapter registers */
+                // port and port adapter registers
                 reg = <0x200000 0x10000>;
                 phy-handle = <&phy0_2>;
                 phy-mode = "rmii";
-                /*auto-speed-select;*/
+                //auto-speed-select;
             };
-            port1 {
-                if_name = "CE22";
+            port1@210000 {
+                if_name = "CE12";
                 medium_type = <1>;
                 reg = <0x210000 0x10000>;
                 phy-handle = <&phy1_2>;
                 phy-mode = "rgmii-id";
-                /*auto-speed-select;*/
+                //auto-speed-select;
                 sfp-eeprom = <&sfp2_eeprom_2>;
                 sfp-phy-handle = <&sfp2_phy_2>;
             };
-            port2 {
-                if_name = "CE21";
+            port2@220000 {
+                if_name = "CE11";
                 medium_type = <1>;
                 reg = <0x220000 0x10000>;
                 phy-handle = <&phy2_2>;
                 phy-mode = "rgmii-id";
-                /*auto-speed-select;*/
+                //auto-speed-select;
                 sfp-eeprom = <&sfp1_eeprom_2>;
                 sfp-phy-handle = <&sfp1_phy_2>;
             };
         };
 
-        ts_2@290000 {
-            compatible = "flx,ts";
-            reg = <0x00290000 0x1200>;
-            interrupt-parent = <&gpio>;
-            interrupts = <18 8>;
-        };
+        // ts_2@290000 {
+        //     compatible = "flx,ts";
+        //     reg = <0x00290000 0x1200>;
+        //     interrupt-parent = <&gpio>;
+        //     interrupts = <18 8>;
+        // };
 
-        ts_2@298000 {
-            compatible = "flx,ts";
-            reg = <0x00298000 0x1200>;
-            interrupt-parent = <&gpio>;
-            interrupts = <18 8>;
-        };
+        // ts_2@298000 {
+        //     compatible = "flx,ts";
+        //     reg = <0x00298000 0x1200>;
+        //     interrupt-parent = <&gpio>;
+        //     interrupts = <18 8>;
+        // };
 
-        ts_2@2a0000 {
-            compatible = "flx,ts";
-            reg = <0x002a0000 0x1200>;
-            interrupt-parent = <&gpio>;
-            interrupts = <18 8>;
-        };
+        // ts_2@2a0000 {
+        //     compatible = "flx,ts";
+        //     reg = <0x002a0000 0x1200>;
+        //     interrupt-parent = <&gpio>;
+        //     interrupts = <18 8>;
+        // };
 
-        ts_2@2a8000 {
-            compatible = "flx,ts";
-            reg = <0x002a8000 0x1200>;
-            interrupt-parent = <&gpio>;
-            interrupts = <18 8>;
-        };
+        // ts_2@2a8000 {
+        //     compatible = "flx,ts";
+        //     reg = <0x002a8000 0x1200>;
+        //     interrupt-parent = <&gpio>;
+        //     interrupts = <18 8>;
+        // };
     };
 
     ioexpand_gpio_2: pca9555@21 {
@@ -122,114 +122,124 @@
     };
 };
 
-&mdio2 {
-        /* PHY for FRS port 0 */
+&gpio {	
+	mdio2_pins: mdio2 {
+		brcm,pins = <17 16>;	// MDC, MDIO 
+		brcm,function = <1 0>;
+	};
+};
+
+&soc {
+    mdio2: mdio2 {
+		compatible = "virtual,mdio-gpio";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&mdio2_pins>;
+		// MDC and MDIO, in that order 
+		gpios = <   &gpio 17 0 
+                    &gpio 16 0>;
+
+        // PHY for FRS port 0
         phy0_2: mdio2_phy@5 {
             compatible = "ethernet-phy-ieee802.3-c22";
             reg = <0x5>;
         };
-        /* PHY for FRS port 1 */
+        // PHY for FRS port 1
         phy1_2: mdio2_phy@1 {
             compatible = "ethernet-phy-ieee802.3-c22";
             reg = <0x0>;
-            /* Enable RCLK to CLK125 pin */
+            // Enable RCLK to CLK125 pin
             marvell,reg-init = <2 16 0xffff 0x0001>;
         };
-        /* PHY for FRS port 2 */
+        // PHY for FRS port 2
         phy2_2: mdio2_phy@0 {
             compatible = "ethernet-phy-ieee802.3-c22";
             reg = <0x1>;
-            /* Enable RCLK to CLK125 pin */
+            // Enable RCLK to CLK125 pin
             marvell,reg-init = <2 16 0xffff 0x0001>;
         };
-};
+	};
 
-&soc {
-    /* I2C bus to SFP1 */
+    // I2C bus to SFP1
     i2c-sfp1_2 {
         compatible = "i2c-gpio";
         #address-cells = <1>;
         #size-cells = <0>;
-        /* SDA and SCL */
-        gpios = <&ioexpand_gpio_2 1 0
-             &ioexpand_gpio_2 2 0>;
+        // SDA and SCL
+        gpios = <   &ioexpand_gpio 1 0      
+                    &ioexpand_gpio 2 0>;
 
-        /*
-         * Hw is not open-drain, it can drive high.
-         * So must not use xxx-open-drain here.
-         * Enable clock stretching by not using setting output-only.
-         */
+        // Hw is not open-drain, it can drive high.
+        // So must not use xxx-open-drain here.
+        // Enable clock stretching by not using setting output-only
         //i2c-gpio,sda-open-drain;
         //i2c-gpio,scl-open-drain;
         //i2c-gpio,scl-output-only;
         i2c-gpio,delay-us = <5>;
         i2c-gpio,timeout-ms = <100>;
 
-        /* I2C slave: PHY in SFP */
-        sfp1-mdio {
+        // I2C slave: PHY in SFP
+        sfp1-mdio@56 {
             #address-cells = <1>;
             #size-cells = <0>;
             compatible = "flx,i2c-mdio";
             reg = <0x56>;
 
-            /* PHY device on virtual MDIO bus */
-            sfp1_phy_2: sfp1-phy {
+            // PHY device on virtual MDIO bus
+            sfp1_phy_2: sfp1-phy@16 {
                 compatible = "ethernet-phy-ieee802.3-c22";
-                /* I2C slave address 0xac with write bit,
-                 * actual I2C slave address 0x56,
-                 * PHY address 0x16
-                 */
+                // I2C slave address 0xac with write bit,
+                // actual I2C slave address 0x56,
+                // PHY address 0x16
                 reg = <0x16>;
             };
         };
 
-        /* I2C slave: EEPROM in SFP */
-        sfp1_eeprom_2: sfp1-eeprom {
+        // I2C slave: EEPROM in SFP
+        sfp1_eeprom_2: sfp1-eeprom@50 {
             compatible = "atmel,at24c01a";
             reg = <0x50>;
         };
     };
 
-    /* I2C bus to SFP2 */
+    // I2C bus to SFP2
     i2c-sfp2_2 {
         compatible = "i2c-gpio";
         #address-cells = <1>;
         #size-cells = <0>;
-        /* SDA and SCL */
-        gpios = <&ioexpand_gpio_2 6 0
-             &ioexpand_gpio_2 7 0>;
+        // SDA and SCL 
+        gpios = <   &ioexpand_gpio_2 6 0
+                    &ioexpand_gpio_2 7 0>;
 
-        /*
-         * Hw is not open-drain, it can drive high.
-         * So must not use xxx-open-drain here.
-         * Enable clock stretching by not using setting output-only.
-         */
+        // Hw is not open-drain, it can drive high.
+        // So must not use xxx-open-drain here.
+        // Enable clock stretching by not using setting output-only.
         //i2c-gpio,sda-open-drain;
         //i2c-gpio,scl-open-drain;
         //i2c-gpio,scl-output-only;
         i2c-gpio,delay-us = <5>;
         i2c-gpio,timeout-ms = <100>;
 
-        /* I2C slave: PHY in SFP */
-        sfp2-mdio {
+        // I2C slave: PHY in SFP
+        sfp2-mdio@56 {
             #address-cells = <1>;
             #size-cells = <0>;
             compatible = "flx,i2c-mdio";
             reg = <0x56>;
 
-            /* PHY device on virtual MDIO bus */
-            sfp2_phy_2: sfp2-phy {
+            // PHY device on virtual MDIO bus
+            sfp2_phy_2: sfp2-phy@16 {
                 compatible = "ethernet-phy-ieee802.3-c22";
-                /* I2C slave address 0xac with write bit,
-                 * actual I2C slave address 0x56,
-                 * PHY address 0x16
-                 */
+                // I2C slave address 0xac with write bit,
+                // actual I2C slave address 0x56,
+                // PHY address 0x16
                 reg = <0x16>;
             };
         };
 
-        /* I2C slave: EEPROM in SFP */
-        sfp2_eeprom_2: sfp2-eeprom {
+        // I2C slave: EEPROM in SFP
+        sfp2_eeprom_2: sfp2-eeprom@50 {
             compatible = "atmel,at24c01a";
             reg = <0x50>;
         };

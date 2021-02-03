@@ -3,6 +3,7 @@
 # description:
 # processname:
 
+FLX_DRIVER_PATH=/var/lib/xr7/default/drivers/$(uname -r)
 ROOTFS=/var/ubuntu20
 DIR=/home/avant
 
@@ -20,7 +21,8 @@ start() {
   fi
 
   echo -n $"Starting Prosoft applications.\n"
-  insmod $FLX_DRIVER_PATH/ttyebus.ko
+  insmod $FLX_DRIVER_PATH/ttyUart0.ko connect=BVP
+  insmod $FLX_DRIVER_PATH/ttyUart1.ko connect=BSP
   $DIR/ch-mount.sh -m $ROOTFS  
   chroot $ROOTFS sh -c "cd /root/bvp; ./bvp61850" > /dev/null 2>&1 &
   sleep 5
@@ -33,6 +35,8 @@ stop() {
   pkill bvp61850
   pkill avant
   pkill time_src_ctl
+  rmmod ttyUart0
+  rmmod ttyUart1
   $DIR/ch-mount.sh -u $ROOTFS
 }
 

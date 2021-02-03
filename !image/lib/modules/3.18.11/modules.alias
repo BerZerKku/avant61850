@@ -89,7 +89,6 @@ alias authenc authenc
 alias crypto-authencesn authencesn
 alias authencesn authencesn
 alias platform:gpio-backlight gpio_backlight
-alias char-major-4-* 8250
 alias i2c:at24 at24
 alias i2c:24c1024 at24
 alias i2c:24c512 at24

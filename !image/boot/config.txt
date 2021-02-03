@@ -49,16 +49,8 @@ dtoverlay=i2c-rtc,ds3231
 kernel=kernel7.img
 device_tree=bcm2710-rpi-3-b-xrs7003f-bvp-2v2-imr-1v1.dtb
 
+#Uart0
 core_freq=250
-# connect UART0 to pins 14(TXD),15(RXD)
-#   enable_uart=1
-# connect UART0 to pins 32(TXD),33(RXD)
-#   enable_uart=0
-#   gpio=32=a3
-#   gpio=33=a3
-enable_uart=0
-#gpio=32=a3
-#gpio=33=a3
 
 # BACKUP_SD#
 gpio=39=ip,pu

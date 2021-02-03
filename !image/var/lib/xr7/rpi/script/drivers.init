@@ -213,7 +213,7 @@ start()
 	# length 1500 + management trailer, so decrease MTU.
 	# Also bring up interfaces momentarily to configure PHYs
 	# before enabling interrupt.
-	for i in SE01 CE01 CE02 SE21 CE21 CE22 SE31 CE31 CE32; do
+	for i in SE01 CE01 CE02 SE11 CE11 CE12 SE21 CE21 CE22; do
 		if ip link | grep -q " $i:" ; then
 			ip link set dev $i mtu 1498
 			ip link set dev $i up
@@ -235,7 +235,6 @@ stop()
 
 	ip link set xf1 down
 	ip link set xf2 down
-	ip link set xf3 down
 
 	lsmod | grep -q '^flx_frs ' && rmmod flx_frs
 	lsmod | grep -q '^flx_fpts ' && rmmod flx_fpts
