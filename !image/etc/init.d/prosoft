@@ -35,8 +35,10 @@ stop() {
   pkill bvp61850
   pkill avant
   pkill time_src_ctl
-  rmmod ttyUart0
+  sleep 1
   rmmod ttyUart1
+  sleep 1
+  rmmod ttyUart0
   $DIR/ch-mount.sh -u $ROOTFS
 }
 

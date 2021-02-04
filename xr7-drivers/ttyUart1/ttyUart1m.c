@@ -1,13 +1,9 @@
-//===============================================================================================================
 //
-// ttyUart1 - real time linux kernel module for the mini UART on a Rasperry Pi
+//  ttyUart1 - real time linux kernel module for the PL011 UART on a Rasperry Pi
 //
-//==========================================================================================================
+//  Revision history:
+//      2021-02-04      V1.00   Initial release
 //
-// Revision history:
-// 2017-12-12   V1.00   Initial release 
-//
-//===============================================================================================================
 
 #include <linux/fs.h>               // file stuff
 #include <linux/kernel.h>           // printk()
@@ -33,7 +29,6 @@
 // #define DEBUG
 // #define IRQDEBUG
 
-
 #ifdef DEBUG
 #define P_DEBUG(fmt...)	printk(KERN_NOTICE DEVICE_NAME ": " fmt)
 #else
@@ -51,11 +46,12 @@ static int ttyUart1_open(struct inode* inode, struct file* file);
 static int ttyUart1_close(struct inode* inode, struct file* file);
 static unsigned int ttyUart1_poll(struct file* file_ptr, poll_table* wait);
 static ssize_t ttyUart1_read(struct file* file_ptr, char __user* user_buffer, 
-                              size_t count, loff_t* offset);
+                             size_t count, loff_t* offset);
 static ssize_t ttyUart1_write(struct file* file_ptr, 
-                              const char __user* user_buffer, 
+                              const char __user* user_buffer,
                               size_t count, loff_t* offset);
-static long ttyUart1_ioctl(struct file* fp, unsigned int cmd, unsigned long arg);
+static long ttyUart1_ioctl(struct file* fp, unsigned int cmd,
+                           unsigned long arg);
 static unsigned int getRaspiModel(void);
 
 static int init_gpio(bool enable);
@@ -81,25 +77,25 @@ MODULE_PARM_DESC(connect, " Connect " DEVICE_NAME " to 'BSP' or 'BVP'");
 
 // file operations with this kernel module
 static struct file_operations ttyUart1_fops = {
-	.owner          = THIS_MODULE,
-	.open           = ttyUart1_open,
-	.release        = ttyUart1_close,
-	.poll           = ttyUart1_poll,
-	.read           = ttyUart1_read,
-	.write          = ttyUart1_write,
-	.unlocked_ioctl = ttyUart1_ioctl
+    .owner          = THIS_MODULE,
+    .open           = ttyUart1_open,
+    .release        = ttyUart1_close,
+    .poll           = ttyUart1_poll,
+    .read           = ttyUart1_read,
+    .write          = ttyUart1_write,
+    .unlocked_ioctl = ttyUart1_ioctl
 };
 
 static struct miscdevice misc = {
-	.minor = MISC_DYNAMIC_MINOR,
-	.name = DEVICE_NAME,
-	.fops = &ttyUart1_fops,
-	.mode = S_IRUSR |   // User read
-			S_IWUSR |   // User write
-			S_IRGRP |   // Group read
-			S_IWGRP |   // Group write
-			S_IROTH |   // Other read
-			S_IWOTH     // Other write
+    .minor = MISC_DYNAMIC_MINOR,
+    .name = DEVICE_NAME,
+    .fops = &ttyUart1_fops,
+    .mode = S_IRUSR |   // User read
+            S_IWUSR |   // User write
+            S_IRGRP |   // Group read
+            S_IWGRP |   // Group write
+            S_IROTH |   // Other read
+            S_IWOTH     // Other write
 };
 
 static unsigned int model;
@@ -127,124 +123,140 @@ static unsigned int TxWork = 0;
 static int IrqCounter = 0;
 #endif
 
-/**
- * 
- */ 
-static inline void delay(int32_t count) {
-	asm volatile("__delay_%=: subs %[count], %[count], #1; bne __delay_%=\n"
-			: "=r"(count): [count]"0"(count) : "cc");
-}
 
 /**
- * 
- */ 
-static irqreturn_t ttyUart1_irq_handler(int irq, void* dev_id) {
-	unsigned int IntMask;
-	unsigned int IntStatus;
-	unsigned int NumBytes;
-
-	P_IRQ_DEBUG("IRQ %d called, RxHead=%d, RxTail=%d, TxHead=%d, TxTail=%d\n", 
-					IrqCounter, RxHead, RxTail, TxHead, TxTail); 
-
-	IntStatus = ioread32(AUX_MU_IIR_REG) & UART_IIR_ID;
-
-	// Receiver
-	if (IntStatus & UART_IIR_ID_RX) {
-		do_irq_rx();
-	}
-
-	// Transmitter
-	if (IntStatus & UART_IIR_ID_TX) {
-		do_irq_tx();
-	}
-
-	P_IRQ_DEBUG("IRQ %d exit. RxHead=%d, RxTail=%d, TxHead=%d, TxTail=%d\n", 
-					IrqCounter++, RxHead, RxTail, TxHead, TxTail);
-
-	return IRQ_HANDLED;
-}
-
-/**
- * 
- */ 
-void do_irq_rx(void) {
-	unsigned int DataWord;
-	unsigned int RxNext;
-	unsigned int Counter = FIFO_RX_SIZE;
-
-	do {
-		DataWord = ioread32(AUX_MU_IO_REG);
-
-		spin_lock(&SpinLock);
-		RxNext = RxHead + 1;
-		if (RxNext >= RX_BUFF_SIZE)
-			RxNext = 0;
-		
-		if (RxNext != RxTail) {
-			RxBuff[RxHead] = DataWord;
-			RxHead = RxNext;
-			P_IRQ_DEBUG("IRQ: One byte received. RxHead=%d, RxTail=%d", 
-							RxHead, RxTail);
-		} else {
-			// buffer overrun. do nothing. just discard the data.
-			// TODO if someone needs to know, we can throw an error here
-			P_IRQ_DEBUG("IRQ: Buffer overrun. RxHead=%d, RxTail=%d", 
-							RxHead, RxTail);
-		}
-		spin_unlock(&SpinLock);
-
-		if (Counter-- == 0) {
-			break;
-		}	
-	} while (ioread32(AUX_MU_LSR_REG) & UART_LSR_DATA_READY);
-
-	wake_up(&WaitQueue);
-}
-
-/** 
- * 
- */ 
-void do_irq_tx(void) {
-	unsigned int IntMask;
-
-	P_IRQ_DEBUG("IRQ: Transmitting  byte. TxHead=%d, TxTail=%d\n", 
-					TxHead, TxTail);
-
-	spin_lock(&SpinLock);
-	TxWork = send_data_to_tx_fifo();
-	if (TxWork == 0) {
-		IntMask = ioread32(AUX_MU_IER_REG);
-		iowrite32(IntMask & ~UART_IER_TX_INT_ENABLE, AUX_MU_IER_REG);
-
-		P_IRQ_DEBUG("IRQ: Stopping Tx Interrupt. TxHead=%d, TxTail=%d\n", 
-						TxHead, TxTail);
-	}
-	spin_unlock(&SpinLock);
+ * @brief delay
+ * @param count
+ */
+static inline void delay(int32_t count)
+{
+    asm volatile("__delay_%=: subs %[count], %[count], #1; bne __delay_%=\n"
+                 : "=r"(count): [count]"0"(count) : "cc");
 }
 
 
 /**
- * 
- */ 
-unsigned int send_data_to_tx_fifo(void) {
-	unsigned int DataWord;
-	unsigned int Count = 0;
+ * @brief ttyUart1_irq_handler
+ * @param irq
+ * @param dev_id
+ * @return
+ */
+static irqreturn_t ttyUart1_irq_handler(int irq, void* dev_id)
+{
+    unsigned int IntStatus;
 
-	while (	(TxTail < TxHead) && 
-			(ioread32(AUX_MU_STAT_REG) & UART_STAT_TX_SPACE_AVL)) {
-		DataWord = TxBuff[TxTail++];
-    	iowrite32(DataWord, AUX_MU_IO_REG);
-		Count++;
-	}
+    P_IRQ_DEBUG("IRQ %d called, RxHead=%d, RxTail=%d, TxHead=%d, TxTail=%d\n",
+                IrqCounter, RxHead, RxTail, TxHead, TxTail);
 
-	P_IRQ_DEBUG(KERN_WARNING DEVICE_NAME " : send %d bytes\n", Count);
-	return Count;
+    IntStatus = ioread32(AUX_MU_IIR_REG) & UART_IIR_ID;
+
+    // Receiver
+    if (IntStatus & UART_IIR_ID_RX) {
+        do_irq_rx();
+    }
+
+    // Transmitter
+    if (IntStatus & UART_IIR_ID_TX) {
+        do_irq_tx();
+    }
+
+    P_IRQ_DEBUG("IRQ %d exit. RxHead=%d, RxTail=%d, TxHead=%d, TxTail=%d\n",
+                IrqCounter++, RxHead, RxTail, TxHead, TxTail);
+
+    return IRQ_HANDLED;
 }
 
+
 /**
- * 
- */ 
-int init_gpio(bool enable) {
+ * @brief do_irq_rx
+ */
+void do_irq_rx(void)
+{
+    unsigned int DataWord;
+    unsigned int RxNext;
+    unsigned int Counter = FIFO_RX_SIZE;
+
+    do {
+        DataWord = ioread32(AUX_MU_IO_REG);
+
+        spin_lock(&SpinLock);
+        RxNext = RxHead + 1;
+        if (RxNext >= RX_BUFF_SIZE)
+            RxNext = 0;
+
+        if (RxNext != RxTail) {
+            RxBuff[RxHead] = DataWord;
+            RxHead = RxNext;
+            P_IRQ_DEBUG("IRQ: One byte received. RxHead=%d, RxTail=%d",
+                        RxHead, RxTail);
+        } else {
+            // buffer overrun. do nothing. just discard the data.
+            // TODO if someone needs to know, we can throw an error here
+            P_IRQ_DEBUG("IRQ: Buffer overrun. RxHead=%d, RxTail=%d",
+                        RxHead, RxTail);
+        }
+        spin_unlock(&SpinLock);
+
+        if (Counter-- == 0) {
+            break;
+        }
+    } while (ioread32(AUX_MU_LSR_REG) & UART_LSR_DATA_READY);
+
+    wake_up(&WaitQueue);
+}
+
+
+/**
+ * @brief do_irq_tx
+ */
+void do_irq_tx(void)
+{
+    unsigned int IntMask;
+
+    P_IRQ_DEBUG("IRQ: Transmitting  byte. TxHead=%d, TxTail=%d\n",
+                TxHead, TxTail);
+
+    spin_lock(&SpinLock);
+    TxWork = send_data_to_tx_fifo();
+    if (TxWork == 0) {
+        IntMask = ioread32(AUX_MU_IER_REG);
+        iowrite32(IntMask & ~UART_IER_TX_INT_ENABLE, AUX_MU_IER_REG);
+
+        P_IRQ_DEBUG("IRQ: Stopping Tx Interrupt. TxHead=%d, TxTail=%d\n",
+                    TxHead, TxTail);
+    }
+    spin_unlock(&SpinLock);
+}
+
+
+/**
+ * @brief send_data_to_tx_fifo
+ * @return
+ */
+unsigned int send_data_to_tx_fifo(void)
+{
+    unsigned int DataWord;
+    unsigned int Count = 0;
+
+    while (	(TxTail < TxHead) &&
+            (ioread32(AUX_MU_STAT_REG) & UART_STAT_TX_SPACE_AVL)) {
+        DataWord = TxBuff[TxTail++];
+        iowrite32(DataWord, AUX_MU_IO_REG);
+        Count++;
+    }
+
+    P_IRQ_DEBUG(KERN_WARNING DEVICE_NAME " : send %d bytes\n", Count);
+    return Count;
+}
+
+
+/**
+ * @brief init_gpio
+ * @param enable
+ * @return
+ */
+int init_gpio(bool enable)
+{
     static unsigned int gpioTx = 0;
     static unsigned int gpioRx = 0;
 
@@ -282,9 +294,12 @@ int init_gpio(bool enable) {
 }
 
 /**
- * 
- */ 
-void set_gpio_mode(unsigned int Gpio, unsigned int Function) {
+ * @brief set_gpio_mode
+ * @param Gpio
+ * @param Function
+ */
+void set_gpio_mode(unsigned int Gpio, unsigned int Function)
+{
     unsigned int RegOffset = (Gpio / 10) << 2;
     unsigned int Bit = (Gpio % 10) * 3;
 
@@ -295,9 +310,12 @@ void set_gpio_mode(unsigned int Gpio, unsigned int Function) {
 }
 
 /**
- * 
- */ 
-void set_gpio_pullupdown(unsigned int Gpio, unsigned int pud) {
+ * @brief set_gpio_pullupdown
+ * @param Gpio
+ * @param pud
+ */
+void set_gpio_pullupdown(unsigned int Gpio, unsigned int pud)
+{
     iowrite32(pud, GPIO_PULL);
     delay(150);     // provide hold time for the control signal
 
@@ -310,16 +328,20 @@ void set_gpio_pullupdown(unsigned int Gpio, unsigned int pud) {
 
 
 /**
- * 
- */ 
-static unsigned int ttyUart1_poll(struct file* file_ptr, poll_table* wait) {
+ * @brief ttyUart1_poll
+ * @param file_ptr
+ * @param wait
+ * @return
+ */
+static unsigned int ttyUart1_poll(struct file* file_ptr, poll_table* wait)
+{
     P_DEBUG("Poll request\n");
 
     poll_wait(file_ptr, &WaitQueue, wait);
     if (RxTail != RxHead) {
         P_DEBUG("Poll succeeded. RxHead=%d, RxTail=%d\n", RxHead, RxTail);
         return POLLIN | POLLRDNORM;
-    } 
+    }
 
     P_DEBUG("Poll timeout\n");
     return 0;
@@ -327,11 +349,19 @@ static unsigned int ttyUart1_poll(struct file* file_ptr, poll_table* wait) {
 
 
 /**
- * 
- */ 
+ * @brief ttyUart1_read
+ * @param file_ptr
+ * @param user_buffer
+ * @param Count
+ * @param offset
+ * @return
+ */
 static ssize_t ttyUart1_read(struct file* file_ptr, 
-    char __user* user_buffer, size_t Count, loff_t* offset) {
-  
+                             char __user* user_buffer,
+                             size_t Count,
+                             loff_t* offset)
+{
+
     unsigned int NumBytes;
     unsigned int result;
     unsigned long Flags;
@@ -339,8 +369,8 @@ static ssize_t ttyUart1_read(struct file* file_ptr,
     enum { BUFFER_SIZE = 512 };
     char buffer[BUFFER_SIZE];
 
-    P_DEBUG("Read request with offset=%d and count=%u\n", 
-                (int)*offset, (unsigned int)Count);
+    P_DEBUG("Read request with offset=%d and count=%u\n",
+            (int)*offset, (unsigned int)Count);
 
     jiffies = usecs_to_jiffies(RW_MAX_DELAY_US);
     result = wait_event_timeout(WaitQueue, RxTail != RxHead, jiffies);
@@ -366,66 +396,85 @@ static ssize_t ttyUart1_read(struct file* file_ptr,
 
     P_DEBUG("Read exit with %d bytes read\n", NumBytes);
 
-    return NumBytes;    
+    return NumBytes;
 }
-    
-    
+
+
 /**
- * 
- */ 
+ * @brief ttyUart1_write
+ * @param file_ptr
+ * @param user_buffer
+ * @param Count
+ * @param offset
+ * @return
+ */
 static ssize_t ttyUart1_write(struct file* file_ptr, 
-    const char __user* user_buffer, size_t Count, loff_t* offset) {
+                              const char __user* user_buffer,
+                              size_t Count,
+                              loff_t* offset)
+{
 
     unsigned int result;
     int Timeout;
     unsigned long Flags;
-    unsigned int DataWord;
     unsigned int IntMask;
+    unsigned int FreeSize;
 
-    P_DEBUG("Write request with offset=%d and count=%u\n", 
-            	(int)*offset, (unsigned int)Count);
+    P_DEBUG("Write request with offset=%d and count=%u\n",
+            (int)*offset, (unsigned int)Count);
 
-    P_IRQ_DEBUG("Write request. TxHead=%d, TxTail=%d\n", 
-                	TxHead, TxTail);
+    P_IRQ_DEBUG("Write request. TxHead=%d, TxTail=%d\n",
+                TxHead, TxTail);
 
     Timeout = 1;
     while (TxWork > 0) {
         if (--Timeout < 0) {
-			printk(KERN_WARNING DEVICE_NAME " : Device is busy\n");
-        	return -EBUSY;
-		}
+            break;
+        }
         udelay(RW_MAX_DELAY_US);
     }
 
-    if (Count > TX_BUFF_SIZE) {
-        Count = TX_BUFF_SIZE;
-	}
+    FreeSize = (TxHead >= TxTail) ? TX_BUFF_SIZE - TxHead + TxTail - 1 :
+                                   TxTail - TxHead - 1;
 
-    result = copy_from_user(TxBuff, user_buffer, Count);
-    if (result > 0) {
-		P_DEBUG("%d bytes not copied\n", result);
-        return -EFAULT;
+    if (Count > FreeSize) {
+        Count = FreeSize;
     }
 
-    spin_lock_irqsave(&SpinLock, Flags);
-	TxTail = 0;
-    TxHead = Count;
-	TxWork = send_data_to_tx_fifo();
+    if (Count > 0) {
+        result = copy_from_user(TxBuff, user_buffer, Count);
+        if (result > 0) {
+            P_DEBUG("%d bytes not copied\n", result);
+            return -EFAULT;
+        }
 
-    IntMask = ioread32(AUX_MU_IER_REG);
-    iowrite32(IntMask | UART_IER_TX_INT_ENABLE, AUX_MU_IER_REG);
-    spin_unlock_irqrestore(&SpinLock, Flags);
+        spin_lock_irqsave(&SpinLock, Flags);
+        TxTail = 0;
+        TxHead = Count;
+        TxWork = send_data_to_tx_fifo();
+
+        IntMask = ioread32(AUX_MU_IER_REG);
+        iowrite32(IntMask | UART_IER_TX_INT_ENABLE, AUX_MU_IER_REG);
+        spin_unlock_irqrestore(&SpinLock, Flags);
+    } else {
+        P_DEBUG("Transmitter buffer free size %d, tx bytes %d\n",
+                FreeSize, Count);
+    }
 
     P_DEBUG("Write exit with %d bytes written\n", Count);
 
     return Count;
 }
-    
-    
+
+
 /**
- * 
- */ 
-static int ttyUart1_open(struct inode* inode, struct file* file) {
+ * @brief ttyUart1_open
+ * @param inode
+ * @param file
+ * @return
+ */
+static int ttyUart1_open(struct inode* inode, struct file* file)
+{
     unsigned int UartCtrl;
     unsigned int UartEnable;
     unsigned int baudreg;
@@ -471,12 +520,17 @@ static int ttyUart1_open(struct inode* inode, struct file* file) {
 }
 
 
-// =============================================================================
-static int ttyUart1_close(struct inode *inode, struct file *file) {
+/**
+ * @brief ttyUart1_close
+ * @param inode
+ * @param file
+ * @return
+ */
+static int ttyUart1_close(struct inode *inode, struct file *file)
+{
     unsigned int UartCtrl;
-    unsigned int UartEnable;
 
-    P_DEBUG("Close at at major %d  minor %d\n", imajor(inode), iminor(inode));
+    P_DEBUG("Close at major %d  minor %d\n", imajor(inode), iminor(inode));
 
     DeviceOpen--;
 
@@ -486,41 +540,50 @@ static int ttyUart1_close(struct inode *inode, struct file *file) {
     UartCtrl &= ~(UART_CNTL_RX_ENABLE | UART_CNTL_TX_ENABLE);
     iowrite32(UartCtrl, AUX_MU_CNTL_REG);
 
-    P_DEBUG("ttyUart1: Close exit\n");
+    P_DEBUG("Close exit\n");
 
     return 0;
 }
 
 
-// =============================================================================
-static long ttyUart1_ioctl(struct file *fp, unsigned int cmd, 
-                            unsigned long arg) {
-
+/**
+ * @brief ttyUart1_ioctl
+ * @param fp
+ * @param cmd
+ * @param arg
+ * @return
+ */
+static long ttyUart1_ioctl(struct file *fp, unsigned int cmd, unsigned long arg)
+{
     int numbytes;
     unsigned long Flags;
     int ret = 0; /* -ENOIOCTLCMD; */
 
     switch(cmd) {
-        case TIOCINQ: 
-            spin_lock_irqsave(&SpinLock, Flags);
-            if (RxTail > RxHead) {
-                numbytes = RxHead - RxTail + RX_BUFF_SIZE;
-            } else {
-                numbytes = RxHead - RxTail;
-            }
-            spin_unlock_irqrestore(&SpinLock, Flags);
+    case TIOCINQ:
+        spin_lock_irqsave(&SpinLock, Flags);
+        if (RxTail > RxHead) {
+            numbytes = RxHead - RxTail + RX_BUFF_SIZE;
+        } else {
+            numbytes = RxHead - RxTail;
+        }
+        spin_unlock_irqrestore(&SpinLock, Flags);
 
-            ret = put_user(numbytes, (unsigned int __user *) arg);
-        default:
-        break;    
+        ret = put_user(numbytes, (unsigned int __user *) arg);
+    default:
+        break;
     }
 
     return ret;
 }
 
 
-// =============================================================================
-unsigned int getRaspiModel(void) {
+/**
+ * @brief getRaspiModel
+ * @return
+ */
+unsigned int getRaspiModel(void)
+{
     struct file* filp = NULL;
     char buf[32];
     unsigned int NumBytes = 0;
@@ -533,7 +596,7 @@ unsigned int getRaspiModel(void) {
     if (filp == NULL) {
         set_fs(old_fs);
         return 0;
-    } 
+    }
 
     NumBytes = filp->f_op->read(filp, buf, sizeof(buf), &filp->f_pos);
     set_fs(old_fs);
@@ -547,17 +610,21 @@ unsigned int getRaspiModel(void) {
         case '3' : Version = 3; break;
         case '4' : Version = 4; break;
         }
-    }  
+    }
 
-  return Version;
+    return Version;
 }
 
 
-// =============================================================================
-int ttyUart1_register(void) {
-	int result;
-	unsigned int PeriBase;
-	unsigned int UartIrq;
+/**
+ * @brief ttyUart1_register
+ * @return
+ */
+int ttyUart1_register(void)
+{
+    int result;
+    unsigned int PeriBase;
+    unsigned int UartIrq;
 
     P_DEBUG("register_device() is called\n");
 
@@ -571,8 +638,9 @@ int ttyUart1_register(void) {
 
     MajorNumber = register_chrdev(0, DEVICE_NAME, &ttyUart1_fops);
     if (MajorNumber < 0) {
-        printk(KERN_WARNING DEVICE_NAME 
-				" : can\'t register character device with errorcode = %i\n", MajorNumber);
+        printk(KERN_WARNING DEVICE_NAME
+               " : can\'t register character device with errorcode = %i\n",
+               MajorNumber);
         result = MajorNumber;
         goto err_model;
     }
@@ -581,7 +649,6 @@ int ttyUart1_register(void) {
 
     result = misc_register(&misc);
     if (result) {
-        unregister_chrdev(MajorNumber, DEVICE_NAME);
         printk(KERN_ALERT DEVICE_NAME " : Failed to create the device\n");
         goto err_misc;
     }
@@ -591,7 +658,7 @@ int ttyUart1_register(void) {
     UartAddr = ioremap(PeriBase + UART1_BASE, SZ_4K);
 
     if (init_gpio(true) != 0) {
-        printk(KERN_ALERT "ttyUart0: Invalid value of parameter 'connect': %s\n", connect);
+        printk(KERN_ALERT DEVICE_NAME " : Invalid value of parameter 'connect': %s\n", connect);
         result = -EINVAL;
         goto err_gpio;
     }
@@ -602,15 +669,14 @@ int ttyUart1_register(void) {
 
     UartIrq = RASPI_UART1_IRQ;
     if (model == 4) {
-        result = request_irq(UartIrq, ttyUart1_irq_handler, IRQF_SHARED, 
-								"ttyUart1_irq_handler", DEVICE_NAME);
+        result = request_irq(UartIrq, ttyUart1_irq_handler, IRQF_SHARED,
+                             "ttyUart1_irq_handler", DEVICE_NAME);
     } else {
-        result = request_irq(UartIrq, ttyUart1_irq_handler, 0, 
-								"ttyUart1_irq_handler", NULL);
+        result = request_irq(UartIrq, ttyUart1_irq_handler, 0,
+                             "ttyUart1_irq_handler", NULL);
     }
 
     if (result) {
-        unregister_chrdev(MajorNumber, DEVICE_NAME);
         printk(KERN_ALERT DEVICE_NAME " : Failed to request IRQ %d\n", UartIrq);
         goto err_irq;
     }
@@ -632,27 +698,31 @@ err_gpio:
     misc_deregister(&misc);
 err_misc:
     unregister_chrdev(MajorNumber, DEVICE_NAME);
+    MajorNumber = 0;
 err_model:
 
     return result;
 }
-    
-    
-// =============================================================================
-void ttyUart1_unregister(void) {
+
+
+/**
+ * @brief ttyUart1_unregister
+ */
+void ttyUart1_unregister(void)
+{
     unsigned int UartIrq;
 
-    printk(KERN_NOTICE DEVICE_NAME " : unregister_device()");
+    printk(KERN_NOTICE DEVICE_NAME " : unregister_device()\n");
     
     uartEnable(false);
     init_gpio(false);
 
     if (GpioAddr)
         iounmap(GpioAddr);
-    GpioAddr = 0;  
+    GpioAddr = 0;
 
     if (UartAddr)
-        iounmap(UartAddr);  
+        iounmap(UartAddr);
     UartAddr = 0;
 
     UartIrq = RASPI_UART1_IRQ;
@@ -664,8 +734,12 @@ void ttyUart1_unregister(void) {
     MajorNumber = 0;
 }
 
-// ============================================================================= 
-void uartEnable(bool enable) {
+/**
+ * @brief uartEnable
+ * @param enable
+ */
+void uartEnable(bool enable)
+{
     unsigned int UartEnable;
     unsigned int UartCntl;
 

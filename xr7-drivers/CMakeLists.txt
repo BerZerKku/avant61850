@@ -1,9 +1,11 @@
 cmake_minimum_required(VERSION 2.8)
+set( CMAKE_MESSAGE_LOG_LEVEL "DEBUG" )
+
+project(xr7-drivers LANGUAGES C)
+set(CMAKE_CXX_STANDARD 11)
 
 set(ARCH arm)
 set(KERNEL ${CMAKE_CURRENT_SOURCE_DIR}/../linux-raspbian-3.18.11)
-
-project(xr7-drivers)
 
 add_definitions(-D__KERNEL__ -DMODULE)
 

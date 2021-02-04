@@ -134,5 +134,4 @@
 #define UART_STAT_RX_SYMB_AVL  (1 << 0)
 #define UART_STAT_TX_SPACE_AVL (1 << 1)
 
-
 #endif
